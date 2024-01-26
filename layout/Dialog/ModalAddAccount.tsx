@@ -1,5 +1,5 @@
 import { Dialog } from 'primereact/dialog';
-import React, { useRef, useState } from 'react';
+import React, { useContext, useRef, useState } from 'react';
 import { Account, ModalAddAccountProps, ModalEditAccountProps } from '../../types/types';
 import { InputText } from 'primereact/inputtext';
 import { Field, Form, Formik, FormikValues, useFormik } from 'formik';
@@ -7,13 +7,16 @@ import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import { ConfirmPopup, confirmPopup } from 'primereact/confirmpopup';
 import * as Yup from 'yup';
-import { AccountCommon } from '../../common/service/AccountService';
+import { AccountCommon, AccountService } from '../../common/service/AccountService';
 import { FileUpload } from 'primereact/fileupload';
+import { ImageUploadService } from '../../common/service/ImageUploadService';
+import { LayoutContext } from '../context/layoutcontext';
+import Swal from 'sweetalert2';
 
 const ModalAddAccount = ({ visible, setVisible, setRender, render }: ModalAddAccountProps) => {
     const toast = useRef<Toast>(null);
+    const { setLoading } = useContext(LayoutContext);
     const [avatarLink, setAvatarLink] = useState('');
-    console.log('avatarLink: ', avatarLink);
     const headerBody = () => {
         return (
             <>
@@ -36,18 +39,40 @@ const ModalAddAccount = ({ visible, setVisible, setRender, render }: ModalAddAcc
         </div>
     );
 
+    const handleFileUpload = (e) => {
+        console.log('e: ', e);
+        setAvatarLink(e.files[0]);
+    };
+
     const handleSubmit = async (values: any, resetForm: any) => {
-        const dataResponse = await AccountCommon.createAccount({ ...values, avatar: avatarLink });
-        if (dataResponse.message) {
-            console.log('dataResponse: ', dataResponse);
-            if (dataResponse.response.status === 400) {
-                toast.current?.show({ severity: 'error', summary: 'Error', detail: 'Tài khoản đã tồn tại', sticky: true });
+        setLoading(true);
+        if (values) {
+            const account = await AccountService.getListAccount({ keyword: values.email });
+            console.log('account: ', account);
+            if (account.accounts.length > 0) {
+                toast.current?.show({ severity: 'error', summary: 'Error', detail: 'Tài khoản đã tồn tại', life: 3000 });
+            } else {
+                if (avatarLink != '') {
+                    const formData = new FormData();
+                    formData.append('file', avatarLink);
+                    const img = await ImageUploadService.postImage(formData);
+                    values.avatar = img.path;
+                } else {
+                    values.avatar = 'https://seud.org/wp-content/uploads/2020/06/avatar-nobody.png';
+                }
+                const dataResponse = await AccountService.createAccount(values);
+                console.log('dataResponse: ', dataResponse);
+                if (dataResponse) {
+                    resetForm();
+                    setRender(!render);
+                    setVisible(!visible);
+                    setLoading(false);
+                    setAvatarLink('');
+                    Swal.fire({ icon: 'success', title: 'Tạo tài khoản thành công' });
+                } else {
+                    toast.current?.show({ severity: 'error', summary: 'Error', detail: 'Tạo tài khoản thất bại vui lòng kiểm tra lại!', life: 3000 });
+                }
             }
-        } else {
-            toast.current?.show({ severity: 'success', summary: 'Success', detail: 'Tạo tài khoản mới thành công!', sticky: true });
-            resetForm();
-            setRender(!render);
-            setVisible(!visible);
         }
     };
     return (
@@ -55,7 +80,7 @@ const ModalAddAccount = ({ visible, setVisible, setRender, render }: ModalAddAcc
             header={headerBody}
             visible={visible}
             maximizable
-            style={{ width: '50vw' }}
+            style={{ width: '50vw', zIndex: '999' }}
             onHide={() => {
                 setVisible(false);
                 setAvatarLink('');
@@ -79,7 +104,7 @@ const ModalAddAccount = ({ visible, setVisible, setRender, render }: ModalAddAcc
                         {({ errors, touched }) => (
                             <Form>
                                 <div className="">
-                                    <label htmlFor="username">Tài khoản</label>
+                                    <label htmlFor="username">Tên người dùng</label>
                                     <Field component={CustomInputComponent} name="username" className="w-full" />
                                     {errors.username && touched.username ? <div className="text-red-600">{errors.username}</div> : null}
                                 </div>
@@ -115,11 +140,11 @@ const ModalAddAccount = ({ visible, setVisible, setRender, render }: ModalAddAcc
                 <div className="col-12 xl:col-6">
                     <div className="flex align-items-center flex-column">
                         <img
-                            src={avatarLink ? avatarLink : 'https://st3.depositphotos.com/9998432/13335/v/450/depositphotos_133352156-stock-illustration-default-placeholder-profile-icon.jpg'}
+                            src={avatarLink.objectURL ? avatarLink.objectURL : 'https://st3.depositphotos.com/9998432/13335/v/450/depositphotos_133352156-stock-illustration-default-placeholder-profile-icon.jpg'}
                             alt="Image not found"
                             className="w-20rem h-20rem border-circle mb-5"
                         />
-                        <FileUpload mode="basic" className='file-upload-custom' name="demo[]" url={'/api/upload'} accept="image/*" maxFileSize={1000000} onSelect={(e: any) => setAvatarLink(e.files[0].objectURL)} />
+                        <FileUpload mode="basic" className="file-upload-custom" name="demo[]" accept="image/*" maxFileSize={1000000} onSelect={(e) => handleFileUpload(e)} />
                     </div>
                 </div>
             </div>

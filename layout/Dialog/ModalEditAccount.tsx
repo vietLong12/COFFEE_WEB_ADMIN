@@ -1,5 +1,5 @@
 import { Dialog } from 'primereact/dialog';
-import React, { useRef, useState } from 'react';
+import React, { useContext, useRef, useState } from 'react';
 import { Account, ModalEditAccountProps } from '../../types/types';
 import { InputText } from 'primereact/inputtext';
 import { Field, Form, Formik, useFormik } from 'formik';
@@ -7,41 +7,82 @@ import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import { ConfirmPopup, confirmPopup } from 'primereact/confirmpopup';
 import * as Yup from 'yup';
-import { AccountCommon } from '../../common/service/AccountService';
+import { AccountCommon, AccountService } from '../../common/service/AccountService';
 import { FileUpload } from 'primereact/fileupload';
+import { LayoutContext } from '../context/layoutcontext';
+import Swal from 'sweetalert2';
+import { ImageUploadService } from '../../common/service/ImageUploadService';
 
 const ModalEditAccount = ({ visible, setVisible, accountData, setAccountData, isEdit, render, setRender }: ModalEditAccountProps) => {
     const toast = useRef<Toast>(null);
     const [visibleChangePassword, setVisibleChangePassword] = useState(false);
-
+    const [file, setFile] = useState<any>(null);
+    const { setLoading } = useContext(LayoutContext);
     const handleEditAccount = async () => {
-        if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g.test(accountData.email ? accountData.email : '') || !/\(?([0-9]{3})\)?([ .-]?)([0-9]{3})\2([0-9]{4})/.test(accountData.phone ? accountData.phone : '')) {
-            toast.current?.show({ severity: 'warn', summary: 'WANRNING', detail: 'Vui lòng kiểm tra lại thông tin chỉnh sửa' });
-        } else {
-            const data = await AccountCommon.updateAccount({
-                id: accountData._id,
-                avatar: accountData.avatar,
-                email: accountData.email,
-                phone: accountData.phone
-            });
-            if (data) {
-                toast.current?.show({ severity: 'success', summary: 'Success', detail: 'Cập nhật thành công', sticky: true });
+        setLoading(true);
+        const req = {
+            user_id: accountData._id,
+            password: accountData.password,
+            email: accountData.email,
+            avatar: accountData.avatar,
+            phone: accountData.phone,
+            username: accountData.username
+        };
+        if (file) {
+            const formData = new FormData();
+            formData.append('file', file);
+            const data = await ImageUploadService.postImage(formData);
+            req.avatar = data.path;
+        }
+        const data = await AccountService.putAccount(req);
+        if (data.status == 'success') {
+            setTimeout(() => {
+                setLoading(false);
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Cập nhật thành công'
+                });
                 setVisible(false);
                 setRender(!render);
-            }
+            }, 2000);
+        } else {
+            setTimeout(() => {
+                setLoading(false);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Cập nhật thất bại'
+                });
+                setVisible(false);
+            }, 2000);
         }
     };
 
     const handleSubmitFormPassword = async (values: any) => {
-        const data = await AccountCommon.updateAccount({
-            id: accountData._id,
-            password: values.password
-        });
-        if (data) {
-            setAccountData({ ...accountData, password: values.password });
-            toast.current?.show({ severity: 'success', summary: 'Success', detail: 'Cập nhật thành công' });
-            setVisibleChangePassword(false);
-            setRender(!render);
+        const req = {
+            user_id: accountData._id,
+            password: accountData.password,
+            newPassword: values.rePassword
+        };
+        const data = await AccountService.putAccount(req);
+        if (data.status == 'success') {
+            setTimeout(() => {
+                setLoading(false);
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Cập nhật thành công'
+                });
+                setVisible(false);
+                setRender(!render);
+            }, 2000);
+        } else {
+            setTimeout(() => {
+                setLoading(false);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Cập nhật thất bại'
+                });
+                setVisible(false);
+            }, 2000);
         }
     };
 
@@ -80,7 +121,7 @@ const ModalEditAccount = ({ visible, setVisible, accountData, setAccountData, is
                         <label htmlFor="username" className="text-black z-5">
                             Tài khoản
                         </label>
-                        <InputText id="username" name="username" type="text" disabled onChange={(e) => setAccountData({ ...accountData, username: e.target.value })} value={accountData.username} />
+                        <InputText id="username" name="username" type="text" onChange={(e) => setAccountData({ ...accountData, username: e.target.value })} value={accountData.username} />
                         {accountData.username == '' ? <p className="text-red-600">*Tài khoản không được để trống</p> : ''}
                     </span>
 
@@ -107,12 +148,6 @@ const ModalEditAccount = ({ visible, setVisible, accountData, setAccountData, is
                         <InputText id="passwordPresent" name="passwordPresent" type="text" disabled value={accountData.password} />
                     </span>
 
-                    <span className="flex flex-column gap-2 mt-3">
-                        <label htmlFor="avatar" className="text-black z-5">
-                            Avatar Link
-                        </label>
-                        <InputText id="avatar" name="avatar" type="text" onChange={(e) => setAccountData({ ...accountData, avatar: e.target.value })} value={accountData.avatar} />
-                    </span>
                     <Button type="submit" className="mt-3" severity="warning" onClick={handleEditAccount}>
                         Sửa thông tin
                     </Button>
@@ -158,7 +193,18 @@ const ModalEditAccount = ({ visible, setVisible, accountData, setAccountData, is
                             alt="Image not found"
                             className="w-20rem h-20rem border-circle mb-5"
                         />
-                        <FileUpload mode="basic" className="file-upload-custom" name="demo[]" url={'/api/upload'} accept="image/*" maxFileSize={1000000} onSelect={(e: any) => setAvatarLink(e.files[0].objectURL)} />
+                        <FileUpload
+                            mode="basic"
+                            className="file-upload-custom"
+                            name="demo[]"
+                            url={'/api/upload'}
+                            accept="image/*"
+                            maxFileSize={1000000}
+                            onSelect={(e: any) => {
+                                setAccountData({ ...accountData, avatar: e.files[0].objectURL });
+                                setFile(e.files[0]);
+                            }}
+                        />
                     </div>
                 </div>
             </div>

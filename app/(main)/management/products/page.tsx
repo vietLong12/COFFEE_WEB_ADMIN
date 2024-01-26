@@ -33,14 +33,9 @@ export default function Products() {
 
     useEffect(() => {
         const fetch1 = ProductService.getListProduct();
-        const fetch2 = ProductService.getListCategory();
-        Promise.all([fetch1, fetch2]).then((data) => {
-            setListCategory(data[1].data);
-            setData(
-                data[0].data.map((item: Product, index: number) => {
-                    return { ...item, index: index + 1, inStock: item.quantity > 0 };
-                })
-            );
+        Promise.all([fetch1]).then((data) => {
+            console.log('data: ', data);
+            setData(data[0].products);
             setLoading(false);
         });
     }, [render]);
@@ -90,9 +85,12 @@ export default function Products() {
     };
 
     const idBodyTemplate = (rowData: Product) => {
+        console.log('rowData: ', rowData);
         return (
             <div className="flex align-items-center gap-2">
-                <p>{rowData.index}</p>
+                <p className="line" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {rowData._id}
+                </p>
             </div>
         );
     };
@@ -110,11 +108,19 @@ export default function Products() {
     };
 
     const sizeBodyTemplate = (rowData: Product) => {
-        return rowData.size.map((item, index) => {
-            if (index + 1 == rowData.size.length) {
-                return <span key={index}>{item.toUpperCase()}</span>;
+        return rowData.sizes?.map((item, index) => {
+            if (index + 1 == rowData?.sizes.length) {
+                return (
+                    <span key={index} className="uppercase">
+                        {item.name}
+                    </span>
+                );
             }
-            return <span key={index}>{item.toUpperCase()}, </span>;
+            return (
+                <span key={index} className="uppercase">
+                    {item.name},{' '}
+                </span>
+            );
         });
     };
 
@@ -193,12 +199,10 @@ export default function Products() {
                 header={header}
                 emptyMessage="No user found."
             >
-                <Column field="_id" filterField="_id" body={idBodyTemplate} header="STT" />
+                <Column field="_id" filterField="_id" body={idBodyTemplate} header="Mã sản phẩm" style={{ maxWidth: '8rem' }} />
                 <Column field="productName" sortable header="Tên sản phẩm" style={{ minWidth: '12rem' }} />
                 <Column header="Category" field="category" sortable filterField="category" body={categoryBodyTemplate} />
-                <Column header="Đánh giá chung" field="rating" sortable filterField="rating" className="text-center" />
                 <Column header="Size" field="size" sortable filterField="size" body={sizeBodyTemplate} className="text-center" />
-                <Column header="Kho" field="quantity" sortable filterField="quantity" className="text-center" />
                 <Column header="Tình trạng" field="inStock" sortable filterField="inStock" body={inStockBodyTemplate} />
                 <Column header="Ngày thêm sản phẩm" field="createdAt" sortable filterField="createdAt" body={createdAtBodyTemplate} />
                 <Column header="Ngày chỉnh sửa gần nhất" field="updatedAt" sortable filterField="updatedAt" body={updatedAtBodyTemplate} />

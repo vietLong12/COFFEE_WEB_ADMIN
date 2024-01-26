@@ -1,6 +1,7 @@
-'use client'
+'use client';
 import React, { useState, createContext } from 'react';
 import { LayoutState, ChildContainerProps, LayoutConfig, LayoutContextProps } from '../../types/types';
+import Loading from '../../app/(main)/management/loading';
 export const LayoutContext = createContext({} as LayoutContextProps);
 
 export const LayoutProvider = ({ children }: ChildContainerProps) => {
@@ -21,6 +22,8 @@ export const LayoutProvider = ({ children }: ChildContainerProps) => {
         staticMenuMobileActive: false,
         menuHoverActive: false
     });
+
+    const [loading, setLoading] = useState(false);
 
     const onMenuToggle = () => {
         if (isOverlay()) {
@@ -52,8 +55,15 @@ export const LayoutProvider = ({ children }: ChildContainerProps) => {
         layoutState,
         setLayoutState,
         onMenuToggle,
-        showProfileSidebar
+        showProfileSidebar,
+        setLoading,
+        loading
     };
 
-    return <LayoutContext.Provider value={value}>{children}</LayoutContext.Provider>;
+    return (
+        <LayoutContext.Provider value={value}>
+            {loading ? <Loading /> : ''}
+            {children}
+        </LayoutContext.Provider>
+    );
 };

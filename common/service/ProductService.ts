@@ -1,35 +1,81 @@
-import axios from 'axios';
-import { BASE_URL, DELETE_PRODUCT, GET_LIST_CATEGORY, GET_LIST_SIZE_BY_CATEGORY, GET_PRODUCT, POST_PRODUCT, PUT_PRODUCT } from './url';
-import { Product } from '../../types/types';
+import Swal from "sweetalert2";
+import axios, { AxiosResponse } from "axios";
+import { BASE_URL } from "./type";
 
 const request = axios.create({
-    baseURL: BASE_URL
+  baseURL: BASE_URL,
 });
 
+interface QuerryParamGetData {
+  page?: string;
+  limit?: string;
+  keyword?: string;
+  depth?: string;
+}
+
 export class ProductService {
-    static getListProduct = async () => {
-        const respone = await request.get(GET_PRODUCT);
-        return respone.data;
-    };
-    static getListCategory = async () => {
-        const response = await request.get(GET_LIST_CATEGORY);
-        return response.data;
-    };
-    static getListSizeByCategoryId = async (categoryId: string) => {
-        const response = await request.get(GET_LIST_SIZE_BY_CATEGORY + categoryId);
-        return response.data;
-    };
-    static createProduct = async (body: Partial<Product>) => {
-        const response = await request.post(POST_PRODUCT, body);
-        return response.data;
-    };
-    static deleteProductById = async (id: string) => {
-        const response = await request.delete(DELETE_PRODUCT + id);
-        return response.data;
-    };
-    static updateProduct = async (body: Partial<Product>) => {
-        const bodyReq = { ...body, id: body._id };
-        const response = await request.put(PUT_PRODUCT, bodyReq);
-        return response.data;
-    };
+  static async getListProduct(q?: QuerryParamGetData) {
+    try {
+      const { page = "", limit = "", keyword = "", depth = "3" } = q || {};
+      const response: AxiosResponse = await request.get(
+        `/products?page=${page}&limit=${limit}&keyword=${keyword}&depth=${depth}`
+      );
+      return response.data;
+    } catch (error) {
+      ProductService.handleApiError(error);
+    }
+  }
+
+  static async getListCategory() {
+    try {
+      const response: AxiosResponse = await request.get("/products/category");
+      return response.data;
+    } catch (error) {
+      ProductService.handleApiError(error);
+    }
+  }
+
+  static async getProductById(_id: string) {
+    try {
+      const response: AxiosResponse = await request.get(`/products/${_id}`);
+      return response.data;
+    } catch (error) {
+      ProductService.handleApiError(error);
+    }
+  }
+
+  static async getListCommentById(_id: string) {
+    try {
+      const response: AxiosResponse = await request.get(
+        `/products/rate/${_id}`
+      );
+      return response.data;
+    } catch (error) {
+      ProductService.handleApiError(error);
+    }
+  }
+
+  static async postComment(reqBody: any) {
+    try {
+      const response: AxiosResponse = await request.post(
+        "/products/rate",
+        reqBody
+      );
+      return response.data;
+    } catch (error) {
+      ProductService.handleApiError(error);
+    }
+  }
+
+  private static handleApiError(error: any) {
+    console.log('error: ', error);
+    Swal.fire({
+      icon: "warning",
+      title: "Bad Request",
+      text:
+        error.message === "Request failed with status code 400"
+          ? "Yêu cầu không hợp lệ"
+          : error.message,
+    });
+  }
 }

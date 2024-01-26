@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import { classNames } from 'primereact/utils';
 import { FilterMatchMode } from 'primereact/api';
 import { DataTable, DataTableFilterMeta } from 'primereact/datatable';
@@ -14,54 +14,69 @@ import { Button } from 'primereact/button';
 import ModalEditAccount from '../../../../layout/Dialog/ModalEditAccount';
 import { Account, ModalEditAccountProps } from '../../../../types/types';
 import ModalAddAccount from '../../../../layout/Dialog/ModalAddAccount';
-import { AccountCommon } from '../../../../common/service/AccountService';
+import { AccountCommon, AccountService } from '../../../../common/service/AccountService';
 import { exportDataAccount } from '../../../../common/excel.';
 import { convertDateTimeFormat } from '../../../../common/utils/util';
+import { Paginator } from 'primereact/paginator';
+import ModalDetailAccount from '../../../../layout/Dialog/ModalDetailAccount';
+import { Toast } from 'primereact/toast';
+import Loading from '../loading';
+import LoadingCustom from '../../../../common/components/Loading';
+import { LayoutContext } from '../../../../layout/context/layoutcontext';
 
 export default function BasicFilterDemo() {
     const [isEdit, setIsEdit] = useState<boolean>(false);
+    const toast = useRef<Toast>(null);
+    const { loading, setLoading } = useContext(LayoutContext);
+
     const [data, setData] = useState<Account[]>([]);
     const [visible, setVisible] = useState(false);
     const [render, setRender] = useState(true);
+    const [first, setFirst] = useState(0);
+    const [totalPages, setTotalPages] = useState(100);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [rows, setRows] = useState(5);
     const [accountData, setAccountData] = useState<Partial<Account>>({});
-    const [filters, setFilters] = useState<DataTableFilterMeta>({
-        global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-        username: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-        email: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-        phone: { value: null, matchMode: FilterMatchMode.IN },
-        status: { value: null, matchMode: FilterMatchMode.EQUALS }
-    });
-    const [loading, setLoading] = useState<boolean>(true);
+    const [accountProp, setAccountProp] = useState<any>(null);
+    const [visibleDetailAccount, setVisibleDetailAccount] = useState(false);
     const [globalFilterValue, setGlobalFilterValue] = useState<string>('');
 
     useEffect(() => {
-        setLoading(true);
-        AccountCommon.getListAccount().then((data) => {
-            setData(data.list);
-        });
         setLoading(false);
-    }, [render]);
+        const fetchData = async () => {
+            const accounts = await AccountService.getListAccount({ page: currentPage + '', limit: '5', keyword: globalFilterValue });
+            setData(accounts.accounts);
+            setRows(5);
+            setTotalPages(accounts.pagination.totalDocuments);
+            setLoading(false);
+        };
+        fetchData();
+    }, [first, rows, globalFilterValue, render]);
 
     const onGlobalFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
-        let _filters = { ...filters };
-
-        // @ts-ignore
-        _filters['global'].value = value;
-
-        setFilters(_filters);
         setGlobalFilterValue(value);
     };
 
-    const handleDeleteAccount = (rowData: Account) => {
+    const handleDeleteAccount = async (rowData: Account) => {
+        setLoading(true);
         setAccountData(rowData);
-        AccountCommon.deleteAccount(rowData._id);
-        setRender(!render);
+        const account = await AccountService.deleteAccountById(rowData._id);
+        if (account.status === 'success') {
+            setTimeout(() => {
+                setLoading(false);
+                setRender(!render);
+                toast.current?.show({ severity: 'success', summary: 'Success', detail: 'Xóa thành công', life: 3000 });
+            }, 2000);
+        } else {
+            toast.current?.show({ severity: 'error', summary: 'Error', detail: 'Xóa thất bại', life: 3000 });
+        }
     };
 
     const renderHeader = () => {
         return (
             <div className="flex justify-content-between pr-5 mr-5">
+                <LoadingCustom visible={loading} />
                 <span className="p-input-icon-left">
                     <i className="pi pi-search" />
                     <InputText value={globalFilterValue} onChange={onGlobalFilterChange} placeholder="Keyword Search" />
@@ -96,7 +111,15 @@ export default function BasicFilterDemo() {
     const idBodyTemplate = (rowData: Account) => {
         return (
             <div className="flex align-items-center gap-2">
-                <p>{rowData._id}</p>
+                <p
+                    onClick={() => {
+                        setVisibleDetailAccount(!visibleDetailAccount);
+                        setAccountProp(rowData);
+                    }}
+                    className="hover:text-purple-600 cursor-pointer"
+                >
+                    {rowData._id}
+                </p>
             </div>
         );
     };
@@ -151,33 +174,27 @@ export default function BasicFilterDemo() {
             </div>
         );
     };
-
+    const onPageChange = (event) => {
+        setFirst(event.first);
+        setRows(event.rows);
+        setCurrentPage(event.page + 1);
+    };
     const header = renderHeader();
 
     return (
         <div className="card">
-            <DataTable
-                rowsPerPageOptions={[5, 10, 25, 50]}
-                removableSort
-                value={data}
-                paginator
-                showGridlines
-                rows={5}
-                dataKey="_id"
-                filters={filters}
-                loading={loading}
-                globalFilterFields={['username', 'email', 'phone', 'status', '_id']}
-                header={header}
-                emptyMessage="No user found."
-            >
+            <DataTable rowsPerPageOptions={[5, 10, 25, 50]} removableSort value={data} showGridlines rows={5} dataKey="_id" loading={loading} header={header} emptyMessage="No user found.">
                 <Column field="_id" sortable filterField="_id" body={idBodyTemplate} header="ID" style={{ minWidth: '12rem' }} />
                 <Column field="username" sortable header="Tên tài khoản" style={{ minWidth: '12rem' }} />
                 <Column header="Email" field="email" sortable filterField="email" style={{ minWidth: '12rem' }} body={emailBodyTemplate} />
                 <Column header="Số điện thoại" field="phone" sortable filterField="phone" body={phoneBodyTemplate} />
                 <Column header="Ngày đăng kí" field="createdAt" sortable filterField="createdAt" body={createdAtBodyTemplate} />
-                <Column header="Ngày chỉnh sửa gần nhất" field="updatedAt" sortable filterField="updatedAt" body={updatedAtBodyTemplate} />
                 <Column header="Chỉnh sửa" body={actionBodyTemplate} />
             </DataTable>
+            <Toast ref={toast} />
+
+            <Paginator first={first} rows={rows} totalRecords={totalPages} onPageChange={onPageChange} />
+            <ModalDetailAccount account={accountProp} visible={visibleDetailAccount} setVisible={setVisibleDetailAccount} />
             {isEdit ? (
                 <ModalEditAccount isEdit={isEdit} visible={visible} setVisible={setVisible} accountData={accountData} setAccountData={setAccountData} render={render} setRender={setRender} />
             ) : (
