@@ -19,9 +19,26 @@
 }
 
 .p-toast {
+
     &.p-toast-top-right,
     &.p-toast-top-left,
     &.p-toast-top-center {
         top: 100px;
     }
+}
+
+.truncate {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+}
+
+.disabled-input {
+    background-color: #f2f2f2;
+    color: #666;
+    cursor: not-allowed;
+    opacity: 0.7;
+    pointer-events: none;
+    border: 1px solid #ccc;
 }

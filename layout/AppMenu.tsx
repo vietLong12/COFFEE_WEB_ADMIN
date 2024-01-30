@@ -26,6 +26,10 @@ const AppMenu = () => {
         {
             label: 'Monster Detail Product',
             items: [{ label: 'Quản lí phân loại sản phẩm', icon: 'pi pi-wrench', to: '/detail-product/management-category' }]
+        },
+        {
+            label: 'Monster Livestream',
+            items: [{ label: 'Livestream', icon: 'pi pi-video', to: '/live' }]
         }
         // {
         //     label: 'UI Components',

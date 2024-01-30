@@ -10,44 +10,48 @@ import ModalProducts from '../../../../layout/Dialog/ModalProducts';
 import { ProductService } from '../../../../common/service/ProductService';
 import { convertDateTimeFormat } from '../../../../common/utils/util';
 import { Toast } from 'primereact/toast';
+import { Paginator } from 'primereact/paginator';
+import { useDebounce } from 'primereact/hooks';
+import ModalDetailAccount from '../../../../layout/Dialog/ModalDetailAccount';
+import ModalDetailProduct from '../../../../layout/Dialog/ModalDetailProduct';
+import Loading from '../loading';
+import LoadingCustom from '../../../../common/components/Loading';
 
 export default function Products() {
     const [isEdit, setIsEdit] = useState<boolean>(false);
     const [data, setData] = useState<Product[]>([]);
     const toast = useRef<Toast>(null);
     const [render, setRender] = useState<Boolean>(false);
-    console.log('data: ', data);
-
+    const [first, setFirst] = useState(0);
+    const [totalPages, setTotalPages] = useState(100);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [rows, setRows] = useState(5);
     const [listCategory, setListCategory] = useState<Category[]>([]);
     const [visible, setVisible] = useState(false);
+    const [visibleDetailProduct, setVisibleDetailProduct] = useState<boolean>(false);
     const [productData, setProductData] = useState<Partial<Product>>({});
-    const [filters, setFilters] = useState<DataTableFilterMeta>({
-        global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-        username: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-        email: { value: null, matchMode: FilterMatchMode.STARTS_WITH },
-        phone: { value: null, matchMode: FilterMatchMode.IN },
-        status: { value: null, matchMode: FilterMatchMode.EQUALS }
-    });
     const [loading, setLoading] = useState<boolean>(true);
-    const [globalFilterValue, setGlobalFilterValue] = useState<string>('');
-
+    const [globalFilterValue, debouncedValue, setGlobalFilterValue] = useDebounce('', 1000);
+    const onPageChange = (event: any) => {
+        setFirst(event.first);
+        setRows(event.rows);
+        setCurrentPage(event.page + 1);
+    };
     useEffect(() => {
-        const fetch1 = ProductService.getListProduct();
-        Promise.all([fetch1]).then((data) => {
-            console.log('data: ', data);
+        setLoading(true);
+        const fetch2 = ProductService.getListCategory();
+        const fetch1 = ProductService.getListProduct({ page: currentPage + '', keyword: debouncedValue, limit: '10' });
+        Promise.all([fetch1, fetch2]).then((data) => {
+            setListCategory(data[1].data);
+            setRows(10);
+            setTotalPages(data[0].pagination.totalDocuments);
             setData(data[0].products);
             setLoading(false);
         });
-    }, [render]);
+    }, [render, currentPage, debouncedValue]);
 
     const onGlobalFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
-        let _filters = { ...filters };
-
-        // @ts-ignore
-        _filters['global'].value = value;
-
-        setFilters(_filters);
         setGlobalFilterValue(value);
     };
 
@@ -85,10 +89,16 @@ export default function Products() {
     };
 
     const idBodyTemplate = (rowData: Product) => {
-        console.log('rowData: ', rowData);
         return (
             <div className="flex align-items-center gap-2">
-                <p className="line" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                <p
+                    className="line underline cursor-pointer hover:text-blue-500"
+                    style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+                    onClick={() => {
+                        setProductData(rowData);
+                        setVisibleDetailProduct(true);
+                    }}
+                >
                     {rowData._id}
                 </p>
             </div>
@@ -108,20 +118,24 @@ export default function Products() {
     };
 
     const sizeBodyTemplate = (rowData: Product) => {
-        return rowData.sizes?.map((item, index) => {
-            if (index + 1 == rowData?.sizes.length) {
-                return (
-                    <span key={index} className="uppercase">
-                        {item.name}
-                    </span>
-                );
-            }
-            return (
-                <span key={index} className="uppercase">
-                    {item.name},{' '}
-                </span>
-            );
-        });
+        return (
+            <div className="flex justify-content-start">
+                {rowData.sizes?.map((item, index) => {
+                    if (index + 1 == rowData?.sizes.length) {
+                        return (
+                            <span key={index} className="uppercase text-left block">
+                                {item.name}
+                            </span>
+                        );
+                    }
+                    return (
+                        <span key={index} className="uppercase text-left block">
+                            {item.name},{' '}
+                        </span>
+                    );
+                })}
+            </div>
+        );
     };
 
     const categoryBodyTemplate = (rowData: Product) => {
@@ -151,12 +165,12 @@ export default function Products() {
 
     const actionBodyTemplate = (rowData: Account) => {
         const handleDelete = async (id: string) => {
-            const response = await ProductService.deleteProductById(id);
-            if (response.dataRemoved) {
+            const response = await ProductService.deleteProduct(id);
+            if (response) {
                 toast.current?.show({
                     severity: 'success',
                     summary: 'Successful',
-                    detail: 'Product Deleted',
+                    detail: 'Đã xóa sản phẩm',
                     life: 3000
                 });
                 setRender(!render);
@@ -185,29 +199,30 @@ export default function Products() {
     return (
         <div className="card">
             <Toast ref={toast} />
+            <LoadingCustom visible={loading} />
             <DataTable
                 rowsPerPageOptions={[5, 10, 25, 50]}
                 removableSort
                 value={data}
-                paginator
                 rows={10}
                 dataKey="_id"
                 showGridlines
-                filters={filters}
                 loading={loading}
                 globalFilterFields={['productName', 'category', 'quantity', 'rating', '_id']}
                 header={header}
                 emptyMessage="No user found."
             >
-                <Column field="_id" filterField="_id" body={idBodyTemplate} header="Mã sản phẩm" style={{ maxWidth: '8rem' }} />
-                <Column field="productName" sortable header="Tên sản phẩm" style={{ minWidth: '12rem' }} />
-                <Column header="Category" field="category" sortable filterField="category" body={categoryBodyTemplate} />
-                <Column header="Size" field="size" sortable filterField="size" body={sizeBodyTemplate} className="text-center" />
-                <Column header="Tình trạng" field="inStock" sortable filterField="inStock" body={inStockBodyTemplate} />
-                <Column header="Ngày thêm sản phẩm" field="createdAt" sortable filterField="createdAt" body={createdAtBodyTemplate} />
-                <Column header="Ngày chỉnh sửa gần nhất" field="updatedAt" sortable filterField="updatedAt" body={updatedAtBodyTemplate} />
-                <Column header="Chỉnh sửa" body={actionBodyTemplate} />
+                <Column field="_id" filterField="_id" body={idBodyTemplate} header="Mã sản phẩm" style={{ maxWidth: '12rem' }} />
+                <Column field="productName" header="Tên sản phẩm" style={{ maxWidth: '10rem' }} />
+                <Column header="Phân loại" field="category" filterField="category" style={{ maxWidth: '5rem' }} body={categoryBodyTemplate} />
+                <Column header="Size" field="size" filterField="size" body={sizeBodyTemplate} style={{ maxWidth: '8rem' }} className="text-center" />
+                <Column header="Tình trạng" field="inStock" filterField="inStock" body={inStockBodyTemplate} />
+                <Column header="Ngày thêm sản phẩm" field="createdAt" filterField="createdAt" body={createdAtBodyTemplate} />
+                <Column header="Ngày chỉnh sửa gần nhất" field="updatedAt" filterField="updatedAt" body={updatedAtBodyTemplate} />
+                <Column header="Chỉnh sửa" headerClassName="" body={actionBodyTemplate} />
             </DataTable>
+            <Paginator first={first} rows={rows} totalRecords={totalPages} onPageChange={onPageChange} />
+            <ModalDetailProduct product={productData} visible={visibleDetailProduct} setVisible={setVisibleDetailProduct} listCategory={listCategory} />
             <ModalProducts visible={visible} setVisible={setVisible} isEdit={isEdit} productData={productData} render={render} setRender={setRender} setProductData={setProductData} />
         </div>
     );
