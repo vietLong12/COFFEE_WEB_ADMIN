@@ -2,8 +2,12 @@
 import { Avatar } from 'primereact/avatar';
 import { Button } from 'primereact/button';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import socketIOClient from 'socket.io-client';
+
+const ENDPOINT = 'http://localhost:5500'; // Địa chỉ máy chủ của bạn
 
 const page = () => {
+    const [receivedMessages, setReceivedMessages] = useState<any>([]);
     const videoRef = useRef<any>(null);
     const [onMic, setOnMic] = useState(false);
     const [onCam, setOnCam] = useState(false);
@@ -11,6 +15,7 @@ const page = () => {
     const handleOffline = () => {
         setOnline(!online);
     };
+    const socket = socketIOClient(ENDPOINT);
 
     useLayoutEffect(() => {
         const constraints = { video: true };
@@ -30,6 +35,15 @@ const page = () => {
             }
         };
     }, [onCam]);
+    useEffect(() => {
+        socket.on('message', (data) => {
+            setReceivedMessages((prevMessages: any) => [...prevMessages, data]);
+        });
+        return () => {
+            socket.disconnect();
+        };
+    }, [socket]);
+
     return (
         <div className="card h-full">
             <div className="grid">
@@ -47,25 +61,19 @@ const page = () => {
                     <h5 className="border border-bottom-1 border-black-alpha-70">Tin nhắn hàng đầu:</h5>
                     <div className="border-1 border-round overflow-y-auto" style={{ height: '50vh' }}>
                         <div className="p-2">
-                            <div className="flex align-align-items-start mb-2">
-                                <div className="inline-block mr-2 mt-1">
-                                    <Avatar image="https://images.unsplash.com/photo-1509043759401-136742328bb3?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=1080&fit=max" size="normal" className="inline-block" shape="circle" />
-                                </div>
-                                <p className="inline-block">
-                                    <span className="font-bold">Nguyễn Việt Long :</span>
-                                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Ut, facere.
-                                </p>
-                            </div>
-
-                            <div className="flex align-align-items-start mb-2">
-                                <div className="inline-block mr-2 mt-1">
-                                    <Avatar image="https://images.unsplash.com/photo-1509043759401-136742328bb3?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=1080&fit=max" size="normal" className="inline-block" shape="circle" />
-                                </div>
-                                <p className="inline-block">
-                                    <span className="font-bold">Nguyễn Việt Long: </span>
-                                    Lorem, ipsum dolor.
-                                </p>
-                            </div>
+                            {receivedMessages.map((msg: { author: string; text: string }, index: number) => {
+                                return (
+                                    <div className="flex align-align-items-start mb-2" key={index}>
+                                        <div className="inline-block mr-2 mt-1">
+                                            <Avatar image="https://images.unsplash.com/photo-1509043759401-136742328bb3?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=1080&fit=max" size="normal" className="inline-block" shape="circle" />
+                                        </div>
+                                        <p className="inline-block">
+                                            <span className="font-bold">{msg.author}: </span>
+                                            {msg.text}
+                                        </p>
+                                    </div>
+                                );
+                            })}
                         </div>
                     </div>
                 </div>
