@@ -2,46 +2,47 @@
 import { Avatar } from 'primereact/avatar';
 import { Button } from 'primereact/button';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import socketIOClient from 'socket.io-client';
+import io from 'socket.io-client';
 
 const ENDPOINT = 'http://localhost:5500'; // Địa chỉ máy chủ của bạn
+const socket = io.connect(ENDPOINT);
 
 const page = () => {
     const [receivedMessages, setReceivedMessages] = useState<any>([]);
     const videoRef = useRef<any>(null);
-    const [onMic, setOnMic] = useState(false);
-    const [onCam, setOnCam] = useState(false);
-    const [online, setOnline] = useState(false);
-    const handleOffline = () => {
-        setOnline(!online);
-    };
-    const socket = socketIOClient(ENDPOINT);
+    console.log('videoRef: ', videoRef);
+    const [onMic, setOnMic] = useState(true);
+    const [onCam, setOnCam] = useState(true);
+    const [online, setOnline] = useState(true);
 
     useLayoutEffect(() => {
         const constraints = { video: true };
-
         navigator.mediaDevices
             .getUserMedia(constraints)
             .then((stream) => {
-                videoRef.current.srcObject = stream;
+                console.log('stream: ', stream);
+                if (videoRef && videoRef.current) {
+                    videoRef.current.srcObject = stream;
+                    socket.emit('stream', stream);
+                }
+                console.log('videoRef: ', videoRef);
             })
             .catch((error) => {
                 console.error('Error accessing webcam:', error);
             });
 
         return () => {
-            if (videoRef.current.srcObject) {
+            if (videoRef?.current?.srcObject) {
                 videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
             }
         };
-    }, [onCam]);
+    }, [socket]);
+
     useEffect(() => {
-        socket.on('message', (data) => {
-            setReceivedMessages((prevMessages: any) => [...prevMessages, data]);
+        socket.emit('adminLive');
+        socket.on('adminComment', (data) => {
+            setReceivedMessages(data);
         });
-        return () => {
-            socket.disconnect();
-        };
     }, [socket]);
 
     return (
@@ -61,7 +62,7 @@ const page = () => {
                     <h5 className="border border-bottom-1 border-black-alpha-70">Tin nhắn hàng đầu:</h5>
                     <div className="border-1 border-round overflow-y-auto" style={{ height: '50vh' }}>
                         <div className="p-2">
-                            {receivedMessages.map((msg: { author: string; text: string }, index: number) => {
+                            {receivedMessages.map((msg: { author: string; content: string }, index: number) => {
                                 return (
                                     <div className="flex align-align-items-start mb-2" key={index}>
                                         <div className="inline-block mr-2 mt-1">
@@ -69,7 +70,7 @@ const page = () => {
                                         </div>
                                         <p className="inline-block">
                                             <span className="font-bold">{msg.author}: </span>
-                                            {msg.text}
+                                            {msg.content}
                                         </p>
                                     </div>
                                 );
