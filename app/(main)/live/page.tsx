@@ -3,37 +3,56 @@ import { Avatar } from 'primereact/avatar';
 import { Button } from 'primereact/button';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import io from 'socket.io-client';
+import Peer from 'simple-peer';
+import { data } from '../management/fakeData/DataAccount';
 
 const ENDPOINT = 'http://localhost:5500'; // Địa chỉ máy chủ của bạn
 const socket = io.connect(ENDPOINT);
 
 const page = () => {
     const [receivedMessages, setReceivedMessages] = useState<any>([]);
+    const [peer, setPeer] = useState<any>(null);
     const videoRef = useRef<any>(null);
     console.log('videoRef: ', videoRef);
     const [onMic, setOnMic] = useState(true);
     const [onCam, setOnCam] = useState(true);
     const [online, setOnline] = useState(true);
-
     useLayoutEffect(() => {
         const constraints = { video: true };
         navigator.mediaDevices
             .getUserMedia(constraints)
             .then((stream) => {
-                console.log('stream: ', stream);
-                if (videoRef && videoRef.current) {
+                // Truy cập videoRef sau khi stream đã được thiết lập
+                if (videoRef.current) {
                     videoRef.current.srcObject = stream;
-                    socket.emit('stream', stream);
                 }
-                console.log('videoRef: ', videoRef);
+                const peer = new Peer({ initiator: true, trickle: false, stream: stream });
+                peer.on('signal', (data) => {
+                    // Gửi dữ liệu signal tới máy chủ
+                    socket.emit('stream', data);
+                });
+                peer.on('stream', (remoteStream) => {
+                    // Xử lý dữ liệu stream từ máy chủ
+                    // Ví dụ: hiển thị remoteStream lên videoRef
+                    if (videoRef.current) {
+                        videoRef.current.srcObject = remoteStream;
+                    }
+                });
+                setPeer(peer);
             })
             .catch((error) => {
                 console.error('Error accessing webcam:', error);
+                // Xử lý lỗi
             });
 
         return () => {
-            if (videoRef?.current?.srcObject) {
+            // Đảm bảo dừng truy cập videoRef trước khi component bị unmount
+            if (videoRef.current && videoRef.current.srcObject) {
                 videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
+            }
+            // Đóng kết nối Peer khi component bị unmount
+            if (peer) {
+                peer.destroy();
             }
         };
     }, [socket]);

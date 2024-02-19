@@ -131,3 +131,13 @@ export interface Category {
     updatedAt: string;
     __v?: 0;
 }
+interface MyCustomEventsMap {
+    // Define your custom event names and payloads here
+}
+
+declare module 'socket.io-client' {
+    interface Socket<CustomEventsMap extends Record<string, any>, DefaultEventsMap extends Record<string, any>> {
+        connect(): this;
+        // Add any additional properties or methods that you need here
+    }
+}
