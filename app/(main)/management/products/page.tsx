@@ -15,6 +15,7 @@ import { useDebounce } from 'primereact/hooks';
 import ModalDetailAccount from '../../../../layout/Dialog/ModalDetailAccount';
 import ModalDetailProduct from '../../../../layout/Dialog/ModalDetailProduct';
 import Loading from '../loading';
+import download from 'downloadjs';
 import LoadingCustom from '../../../../common/components/Loading';
 
 export default function Products() {
@@ -80,7 +81,10 @@ export default function Products() {
                         severity="success"
                         rounded
                         onClick={() => {
-                            setVisible(true);
+                            fetch('http://localhost:5500/export/products')
+                                .then((res) => res.blob())
+                                .then((blob) => download(blob, 'danh_sach_san_pham_' + new Date().toLocaleDateString())) // this line automatically starts a download operation
+                                .catch((err) => console.log(err));
                         }}
                     />
                 </div>

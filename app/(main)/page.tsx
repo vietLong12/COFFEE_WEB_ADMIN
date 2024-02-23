@@ -12,17 +12,22 @@ import { Menu } from 'primereact/menu';
 
 export default function StackedBarDemo() {
     const [chartData, setChartData] = useState({});
+    console.log('chartData: ', chartData);
     const [chartOptions, setChartOptions] = useState({});
 
     const [chartDonutData, setChartDonutData] = useState({});
+    console.log('chartDonutData: ', chartDonutData);
     const [chartDonutOptions, setChartDonutOptions] = useState({});
 
     const [chartLineData, setChartLineData] = useState({});
+    console.log('chartLineData: ', chartLineData);
     const [chartLineOptions, setChartLineOptions] = useState({});
 
     const [numberProductsPerDay, setNumberProductsPerDay] = useState(0);
+    console.log('numberProductsPerDay: ', numberProductsPerDay);
     const [orderProductsPerDay, setOrderProductsPerDay] = useState(0);
     const [revenue, setRevenue] = useState(0);
+    console.log('revenue: ', revenue);
 
     //Chart statistical by year
     useEffect(() => {
@@ -136,6 +141,7 @@ export default function StackedBarDemo() {
         };
 
         setChartDonutData(data);
+        console.log('data: ', data);
         setChartDonutOptions(options);
     }, []);
 
@@ -228,7 +234,7 @@ export default function StackedBarDemo() {
                             </div>
                         </div>
                         <span className="text-green-500 font-medium">24 đơn mới </span>
-                        <span className="text-500">kể từ lần cuối đăng nhập</span>
+                        <span className="text-500">kể từ 30 ngày trước</span>
                     </div>
                 </div>
                 <div className="col-12 lg:col-6 xl:col-3">
@@ -242,8 +248,8 @@ export default function StackedBarDemo() {
                                 <i className="pi pi-map-marker text-orange-500 text-xl" />
                             </div>
                         </div>
-                        <span className="text-green-500 font-medium">Tăng %52 </span>
-                        <span className="text-500">kể từ tuần trước</span>
+                        <span className="text-green-500 font-medium">Tăng 52% </span>
+                        <span className="text-500">kể từ tháng trước</span>
                     </div>
                 </div>
                 <div className="col-12 lg:col-6 xl:col-3">
@@ -258,7 +264,7 @@ export default function StackedBarDemo() {
                             </div>
                         </div>
                         <span className="text-green-500 font-medium">68 </span>
-                        <span className="text-500">người đăng kí mới</span>
+                        <span className="text-500">người đăng kí mới trong 7 ngày qua</span>
                     </div>
                 </div>
                 <div className="col-12 lg:col-6 xl:col-3">
@@ -266,14 +272,14 @@ export default function StackedBarDemo() {
                         <div className="flex justify-content-between mb-3">
                             <div>
                                 <span className="block text-500 font-medium mb-3">Bình luận</span>
-                                <div className="text-900 font-medium text-xl">152 Chưa đọc</div>
+                                <div className="text-900 font-medium text-xl">152 Mới</div>
                             </div>
                             <div className="flex align-items-center justify-content-center bg-purple-100 border-round" style={{ width: '2.5rem', height: '2.5rem' }}>
                                 <i className="pi pi-comment text-purple-500 text-xl" />
                             </div>
                         </div>
-                        <span className="text-green-500 font-medium">85 </span>
-                        <span className="text-500">đã phản hồi</span>
+                        <span className="text-500">Nhiều hơn so với tháng trước:</span>
+                        <span className="text-green-500 font-medium">{" "}73</span>
                     </div>
                 </div>
             </div>
@@ -316,7 +322,7 @@ export default function StackedBarDemo() {
                                     <i className="pi pi-dollar text-xl text-blue-500" />
                                 </div>
                                 <span className="text-900 line-height-3">
-                                    Nguyễn Việt Long {' '}
+                                    Nguyễn Việt Long{' '}
                                     <span className="text-700">
                                         đã mua một Bạc xỉu <span className="text-blue-500">30.000đ</span>
                                     </span>

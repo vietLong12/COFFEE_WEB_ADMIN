@@ -22,21 +22,11 @@ const page = () => {
         navigator.mediaDevices
             .getUserMedia(constraints)
             .then((stream) => {
-                // Truy cập videoRef sau khi stream đã được thiết lập
-                if (videoRef.current) {
-                    videoRef.current.srcObject = stream;
-                }
+                videoRef.current.srcObject = stream;
                 const peer = new Peer({ initiator: true, trickle: false, stream: stream });
+
                 peer.on('signal', (data) => {
-                    // Gửi dữ liệu signal tới máy chủ
                     socket.emit('stream', data);
-                });
-                peer.on('stream', (remoteStream) => {
-                    // Xử lý dữ liệu stream từ máy chủ
-                    // Ví dụ: hiển thị remoteStream lên videoRef
-                    if (videoRef.current) {
-                        videoRef.current.srcObject = remoteStream;
-                    }
                 });
                 setPeer(peer);
             })
@@ -46,7 +36,6 @@ const page = () => {
             });
 
         return () => {
-            // Đảm bảo dừng truy cập videoRef trước khi component bị unmount
             if (videoRef.current && videoRef.current.srcObject) {
                 videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
             }

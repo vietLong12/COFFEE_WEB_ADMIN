@@ -10,6 +10,9 @@ import { Button } from 'primereact/button';
 import ModalDetailOrder from '../../../../layout/Dialog/ModalDetailOrder';
 import { LayoutContext } from '../../../../layout/context/layoutcontext';
 import Swal from 'sweetalert2';
+import { Dropdown } from 'primereact/dropdown';
+import LoadingCustom from '../../../../common/components/Loading';
+import download from 'downloadjs';
 
 const Orders = () => {
     const [render, setRender] = useState(false);
@@ -20,6 +23,7 @@ const Orders = () => {
     const [rows, setRows] = useState(5);
     const [orderId, setOrderId] = useState('');
     const [visible, setVisible] = useState(false);
+    const [isLoading, setLoading] = useState(false);
 
     useEffect(() => {
         loadOrders();
@@ -32,22 +36,31 @@ const Orders = () => {
         });
     };
 
+    const handleChangeStatus = async (orderId: string, statusOrder: '1' | '2' | '3' | '4') => {
+        console.log('orderId: ', orderId, statusOrder);
+        setLoading(true);
+        const res = await OrderService.putOrder({ orderId: orderId, statusOrder: statusOrder });
+        if (res) {
+            setRender(!render);
+            setLoading(false);
+            Swal.fire({ icon: 'success', title: 'Thay đổi thành công' });
+        } else {
+            Swal.fire({ icon: 'error', title: 'Thay đổi thất bại' });
+            setLoading(false);
+        }
+    };
+
     const statusBodyTemplate = (order) => {
-        const getSeverity = (o) => {
-            switch (o.status) {
-                case 'In progress':
-                    return 'success';
-                case 'Pending':
-                    return 'warning';
-                case 'Completed':
-                    return 'info';
-                case 'Cancel':
-                    return 'danger';
-                default:
-                    return null;
-            }
-        };
-        return <Tag value={order.status} severity={getSeverity(order)} />;
+        console.log('order: ', order);
+        const arr = [
+            { name: 'In progress', code: '2', bg: 'bg-yellow-200' },
+            { name: 'Pending', code: '1', bg: 'bg-cyan-200	' },
+            { name: 'Completed', code: '3', bg: 'bg-primary-200	' },
+            { name: 'Cancel', code: '4', bg: 'bg-red-200' }
+        ];
+        const filt = arr.filter((item) => item.name === order.status);
+        console.log('filt: ', filt);
+        return <Dropdown value={filt[0]} options={arr} optionLabel="name" onChange={(e) => handleChangeStatus(order._id, e.target.value.code)} className={`${filt[0].bg} w-full`} />;
     };
 
     const totalAmountTemplate = (order) => {
@@ -65,7 +78,6 @@ const Orders = () => {
     };
 
     const handleDeleteOrder = async (orderId) => {
-        console.log('orderId: ', orderId);
         const res = await OrderService.putOrder({ orderId: orderId, statusOrder: '4' });
         if (res) {
             Swal.fire({ icon: 'success', title: 'Xóa thành công' });
@@ -86,7 +98,19 @@ const Orders = () => {
         return (
             <div className="flex justify-content-between">
                 <InputText type="search" placeholder="Tìm kiếm" value={search} onChange={(e) => setSearch(e.target.value)} />
-                <button>Xuất file Excel</button>
+                <Button
+                    type="button"
+                    icon="pi pi-file-excel"
+                    severity="success"
+                    rounded
+                    className='mr-5'
+                    onClick={() => {
+                        fetch('http://localhost:5500/export/orders')
+                            .then((res) => res.blob())
+                            .then((blob) => download(blob, 'danh_sach_don_hang_' + new Date().toLocaleDateString())) // this line automatically starts a download operation
+                            .catch((err) => console.log(err));
+                    }}
+                />
             </div>
         );
     };
@@ -98,6 +122,7 @@ const Orders = () => {
     return (
         <div>
             <div className="card">
+                <LoadingCustom visible={isLoading} />
                 <DataTable value={orders} stripedRows tableStyle={{ minWidth: '50rem' }} header={headerTemplate}>
                     <Column field="index" header="STT" align="center" body={(rowData, rowIndex) => rowIndex.rowIndex + 1} style={{ maxWidth: '3rem' }} />
                     <Column field="orderNumber" header="Mã đơn hàng" align="center" body={idTemplate} />

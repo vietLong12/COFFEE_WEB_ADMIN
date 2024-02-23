@@ -23,6 +23,9 @@ import { Toast } from 'primereact/toast';
 import Loading from '../loading';
 import LoadingCustom from '../../../../common/components/Loading';
 import { LayoutContext } from '../../../../layout/context/layoutcontext';
+import { ExcelService } from '../../../../common/service/ExcelService';
+import axios from 'axios';
+import download from 'downloadjs';
 
 export default function BasicFilterDemo() {
     const [isEdit, setIsEdit] = useState<boolean>(false);
@@ -73,6 +76,13 @@ export default function BasicFilterDemo() {
         }
     };
 
+    const handleExportFile = async () => {
+        fetch('http://localhost:5500/export/accounts')
+            .then((res) => res.blob())
+            .then((blob) => download(blob, 'danh_sach_tai_khoan_' + new Date().toLocaleDateString())) // this line automatically starts a download operation
+            .catch((err) => console.log(err));
+    };
+
     const renderHeader = () => {
         return (
             <div className="flex justify-content-between pr-5 mr-5">
@@ -94,15 +104,7 @@ export default function BasicFilterDemo() {
                             setVisible(true);
                         }}
                     />
-                    <Button
-                        type="button"
-                        icon="pi pi-file-excel"
-                        severity="success"
-                        rounded
-                        onClick={() => {
-                            exportDataAccount(data);
-                        }}
-                    />
+                    <Button type="button" icon="pi pi-file-excel" severity="success" rounded onClick={handleExportFile} />
                 </div>
             </div>
         );
