@@ -9,25 +9,60 @@ import Link from 'next/link';
 import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
 import { Menu } from 'primereact/menu';
+import { DashboardService } from '../../common/service/DashboardService';
+
+interface ResponseInfor {
+    orders: {
+        total: number | string;
+        new: number | string;
+    };
+    revenue: {
+        data: number | string;
+        increase: boolean;
+        percent: number | string;
+    };
+    users: {
+        total: number | string;
+        new: number | string;
+    };
+    comment: {
+        present: number | string;
+        old: number | string;
+    };
+}
+interface Product {
+    [index: number]: string;
+    productName: string;
+    category: string;
+}
+
+interface Notification {
+    username: string;
+    totalBill: number;
+}
+
+interface ResponseInfor2 {
+    bestSeller: Product[];
+    productToday: { [category: string]: number };
+    chart: {
+        dataOldMonth: number[];
+        dataPresent: number[];
+    };
+    notification: Notification[];
+}
 
 export default function StackedBarDemo() {
+    const [dataFetch, setDataFetch] = useState<ResponseInfor | null>(null);
+    const [dataFetch2, setDataFetch2] = useState<ResponseInfor2 | null>(null);
+    console.log('dataFetch2: ', dataFetch2);
     const [chartData, setChartData] = useState({});
-    console.log('chartData: ', chartData);
     const [chartOptions, setChartOptions] = useState({});
 
     const [chartDonutData, setChartDonutData] = useState({});
-    console.log('chartDonutData: ', chartDonutData);
     const [chartDonutOptions, setChartDonutOptions] = useState({});
 
     const [chartLineData, setChartLineData] = useState({});
-    console.log('chartLineData: ', chartLineData);
     const [chartLineOptions, setChartLineOptions] = useState({});
-
-    const [numberProductsPerDay, setNumberProductsPerDay] = useState(0);
-    console.log('numberProductsPerDay: ', numberProductsPerDay);
-    const [orderProductsPerDay, setOrderProductsPerDay] = useState(0);
-    const [revenue, setRevenue] = useState(0);
-    console.log('revenue: ', revenue);
 
     //Chart statistical by year
     useEffect(() => {
@@ -115,108 +150,100 @@ export default function StackedBarDemo() {
 
     //Donut chart
     useEffect(() => {
-        const documentStyle = getComputedStyle(document.documentElement);
-        const listDataDay = [];
-        let sum = 0;
-        for (let i = 0; i < 3; i++) {
-            const temp = Math.floor(Math.random() * 100);
-            listDataDay.push(temp);
-            sum += temp;
-        }
-        setRevenue(sum * 40000);
-        setOrderProductsPerDay(Math.floor(Math.random() * sum));
-        setNumberProductsPerDay(sum);
-        const data = {
-            labels: ['Trà', 'Cà phê', 'Bánh ngọt'],
-            datasets: [
-                {
-                    data: listDataDay,
-                    backgroundColor: [documentStyle.getPropertyValue('--blue-500'), documentStyle.getPropertyValue('--yellow-500'), documentStyle.getPropertyValue('--green-500')],
-                    hoverBackgroundColor: [documentStyle.getPropertyValue('--blue-400'), documentStyle.getPropertyValue('--yellow-400'), documentStyle.getPropertyValue('--green-400')]
-                }
-            ]
-        };
-        const options = {
-            cutout: '40%'
-        };
+        const fetchData = async () => {
+            const data1 = await DashboardService.getDashboardInfor();
+            const data2 = await DashboardService.getDashboardChart();
+            console.log('data2: ', data2);
+            setDataFetch(data1.data);
+            setDataFetch2(data2.data);
 
-        setChartDonutData(data);
-        console.log('data: ', data);
-        setChartDonutOptions(options);
-    }, []);
+            const documentStyle = getComputedStyle(document.documentElement);
+            const listProductToday = Object.keys(data2.data?.productToday);
+            const listData = Object.values(data2.data?.productToday);
 
-    //Chart compare by month
-    useEffect(() => {
-        const documentStyle = getComputedStyle(document.documentElement);
-        const textColor = documentStyle.getPropertyValue('--text-color');
-        const textColorSecondary = documentStyle.getPropertyValue('--text-color-secondary');
-        const surfaceBorder = documentStyle.getPropertyValue('--surface-border');
-        const dayNumber = getDaysInMonth(new Date().getFullYear(), new Date().getMonth() + 1);
-        const listDay = [];
-        const listDataPresent = [];
-        const listDataOld = [];
-        const today = new Date().getDate();
-        for (let i = 1; i <= dayNumber; i++) {
-            listDay.push(i);
-            if (i < today) {
-                listDataPresent.push(Math.floor(Math.random() * 100));
-            }
-            listDataOld.push(Math.floor(Math.random() * 100));
-        }
-
-        const data = {
-            labels: listDay,
-            datasets: [
-                {
-                    label: 'Tháng trước',
-                    data: listDataOld,
-                    fill: false,
-                    borderColor: documentStyle.getPropertyValue('--yellow-500'),
-                    tension: 0.4,
-                    backgroundColor: documentStyle.getPropertyValue('--yellow-500')
-                },
-                {
-                    label: 'Hiện tại',
-                    data: listDataPresent,
-                    fill: false,
-                    borderColor: documentStyle.getPropertyValue('--blue-500'),
-                    tension: 0.4,
-                    backgroundColor: documentStyle.getPropertyValue('--blue-500')
-                }
-            ]
-        };
-        const options = {
-            maintainAspectRatio: false,
-            aspectRatio: 0.6,
-            plugins: {
-                legend: {
-                    labels: {
-                        color: textColor
+            const data = {
+                labels: listProductToday,
+                datasets: [
+                    {
+                        data: listData
                     }
+                ]
+            };
+            const options = {
+                cutout: '40%'
+            };
+            setChartDonutData(data);
+            setChartDonutOptions(options);
+
+            //Chart 2:
+            const chart2 = (present, old) => {
+                const documentStyle = getComputedStyle(document.documentElement);
+                const textColor = documentStyle.getPropertyValue('--text-color');
+                const textColorSecondary = documentStyle.getPropertyValue('--text-color-secondary');
+                const surfaceBorder = documentStyle.getPropertyValue('--surface-border');
+                const dayNumber = getDaysInMonth(new Date().getFullYear(), new Date().getMonth() + 1);
+                const listDay = [];
+                for (let i = 1; i <= dayNumber; i++) {
+                    listDay.push(i);
                 }
-            },
-            scales: {
-                x: {
-                    ticks: {
-                        color: textColorSecondary
+
+                const data = {
+                    labels: listDay,
+                    datasets: [
+                        {
+                            label: 'Tháng trước',
+                            data: old,
+                            fill: false,
+                            borderColor: documentStyle.getPropertyValue('--yellow-500'),
+                            tension: 0.4,
+                            backgroundColor: documentStyle.getPropertyValue('--yellow-500')
+                        },
+                        {
+                            label: 'Hiện tại',
+                            data: present,
+                            fill: false,
+                            borderColor: documentStyle.getPropertyValue('--blue-500'),
+                            tension: 0.4,
+                            backgroundColor: documentStyle.getPropertyValue('--blue-500')
+                        }
+                    ]
+                };
+                const options = {
+                    maintainAspectRatio: false,
+                    aspectRatio: 0.6,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: textColor
+                            }
+                        }
                     },
-                    grid: {
-                        color: surfaceBorder
+                    scales: {
+                        x: {
+                            ticks: {
+                                color: textColorSecondary
+                            },
+                            grid: {
+                                color: surfaceBorder
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                color: textColorSecondary
+                            },
+                            grid: {
+                                color: surfaceBorder
+                            }
+                        }
                     }
-                },
-                y: {
-                    ticks: {
-                        color: textColorSecondary
-                    },
-                    grid: {
-                        color: surfaceBorder
-                    }
-                }
-            }
-        };
+                };
 
-        setChartLineData(data);
-        setChartLineOptions(options);
+                setChartLineData(data);
+                setChartLineOptions(options);
+            };
+            chart2(data2.data.chart.dataPresent, data2.data.chart.dataOldMonth);
+        };
+        fetchData();
     }, []);
 
     return (
@@ -227,13 +254,13 @@ export default function StackedBarDemo() {
                         <div className="flex justify-content-between mb-3">
                             <div>
                                 <span className="block text-500 font-medium mb-3">Đơn hàng</span>
-                                <div className="text-900 font-medium text-xl">{orderProductsPerDay}</div>
+                                <div className="text-900 font-medium text-xl">{dataFetch?.orders.total}</div>
                             </div>
                             <div className="flex align-items-center justify-content-center bg-blue-100 border-round" style={{ width: '2.5rem', height: '2.5rem' }}>
                                 <i className="pi pi-shopping-cart text-blue-500 text-xl" />
                             </div>
                         </div>
-                        <span className="text-green-500 font-medium">24 đơn mới </span>
+                        <span className="text-green-500 font-medium">{dataFetch?.orders.new} đơn mới </span>
                         <span className="text-500">kể từ 30 ngày trước</span>
                     </div>
                 </div>
@@ -242,13 +269,15 @@ export default function StackedBarDemo() {
                         <div className="flex justify-content-between mb-3">
                             <div>
                                 <span className="block text-500 font-medium mb-3">Doanh thu</span>
-                                <div className="text-900 font-medium text-xl">{numberWithCommas(revenue)}đ</div>
+                                <div className="text-900 font-medium text-xl">{dataFetch?.revenue.data}đ</div>
                             </div>
                             <div className="flex align-items-center justify-content-center bg-orange-100 border-round" style={{ width: '2.5rem', height: '2.5rem' }}>
                                 <i className="pi pi-map-marker text-orange-500 text-xl" />
                             </div>
                         </div>
-                        <span className="text-green-500 font-medium">Tăng 52% </span>
+                        <span className="text-green-500 font-medium">
+                            {dataFetch?.revenue.increase ? 'Tăng' : 'Giảm'} {dataFetch?.revenue.percent}%{' '}
+                        </span>
                         <span className="text-500">kể từ tháng trước</span>
                     </div>
                 </div>
@@ -257,13 +286,13 @@ export default function StackedBarDemo() {
                         <div className="flex justify-content-between mb-3">
                             <div>
                                 <span className="block text-500 font-medium mb-3">Người dùng</span>
-                                <div className="text-900 font-medium text-xl">2534</div>
+                                <div className="text-900 font-medium text-xl">{dataFetch?.users.total}</div>
                             </div>
                             <div className="flex align-items-center justify-content-center bg-cyan-100 border-round" style={{ width: '2.5rem', height: '2.5rem' }}>
                                 <i className="pi pi-inbox text-cyan-500 text-xl" />
                             </div>
                         </div>
-                        <span className="text-green-500 font-medium">68 </span>
+                        <span className="text-green-500 font-medium">{dataFetch?.users.new} </span>
                         <span className="text-500">người đăng kí mới trong 7 ngày qua</span>
                     </div>
                 </div>
@@ -272,14 +301,14 @@ export default function StackedBarDemo() {
                         <div className="flex justify-content-between mb-3">
                             <div>
                                 <span className="block text-500 font-medium mb-3">Bình luận</span>
-                                <div className="text-900 font-medium text-xl">152 Mới</div>
+                                <div className="text-900 font-medium text-xl">{dataFetch?.comment.present} Mới</div>
                             </div>
                             <div className="flex align-items-center justify-content-center bg-purple-100 border-round" style={{ width: '2.5rem', height: '2.5rem' }}>
                                 <i className="pi pi-comment text-purple-500 text-xl" />
                             </div>
                         </div>
-                        <span className="text-500">Nhiều hơn so với tháng trước:</span>
-                        <span className="text-green-500 font-medium">{" "}73</span>
+                        <span className="text-500">{dataFetch?.comment.present > dataFetch?.comment.old ? 'Nhiều' : 'Ít'} hơn so với tháng trước:</span>
+                        <span className="text-green-500 font-medium"> {dataFetch?.comment.old}</span>
                     </div>
                 </div>
             </div>
@@ -317,17 +346,21 @@ export default function StackedBarDemo() {
 
                         <span className="block text-600 font-medium mb-3">Mới nhất</span>
                         <ul className="p-0 mx-0 mt-0 mb-4 list-none">
-                            <li className="flex align-items-center py-2 border-bottom-1 surface-border">
-                                <div className="w-3rem h-3rem flex align-items-center justify-content-center bg-blue-100 border-circle mr-3 flex-shrink-0">
-                                    <i className="pi pi-dollar text-xl text-blue-500" />
-                                </div>
-                                <span className="text-900 line-height-3">
-                                    Nguyễn Việt Long{' '}
-                                    <span className="text-700">
-                                        đã mua một Bạc xỉu <span className="text-blue-500">30.000đ</span>
-                                    </span>
-                                </span>
-                            </li>
+                            {dataFetch2?.notification.map((u, i) => {
+                                return (
+                                    <li className="flex align-items-center py-2 border-bottom-1 surface-border" key={i}>
+                                        <div className="w-3rem h-3rem flex align-items-center justify-content-center bg-blue-100 border-circle mr-3 flex-shrink-0">
+                                            <i className="pi pi-dollar text-xl text-blue-500" />
+                                        </div>
+                                        <span className="text-900 line-height-3">
+                                            {u.username}{' '}
+                                            <span className="text-700">
+                                                đã đặt một đơn hàng trị giá <span className="text-blue-500">{u.totalBill}.000đ</span>
+                                            </span>
+                                        </span>
+                                    </li>
+                                );
+                            })}
                         </ul>
                     </div>
                 </div>
@@ -337,66 +370,19 @@ export default function StackedBarDemo() {
                             <h5>Sản phẩm bán chạy</h5>
                         </div>
                         <ul className="list-none p-0 m-0">
-                            <li className="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
-                                <div>
-                                    <span className="text-900 font-medium mr-2 mb-1 md:mb-0">Trà đào cam sả</span>
-                                    <div className="mt-1 text-600">Trà</div>
-                                </div>
-                                <div className="mt-2 md:mt-0 flex align-items-center">
-                                    <div className="surface-300 border-round overflow-hidden w-10rem lg:w-6rem" style={{ height: '8px' }}>
-                                        <div className="bg-orange-500 h-full" style={{ width: '50%' }} />
-                                    </div>
-                                    <span className="text-orange-500 ml-3 font-medium">%50</span>
-                                </div>
-                            </li>
-                            <li className="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
-                                <div>
-                                    <span className="text-900 font-medium mr-2 mb-1 md:mb-0">Cà phê đen</span>
-                                    <div className="mt-1 text-600">Coffee</div>
-                                </div>
-                                <div className="mt-2 md:mt-0 ml-0 md:ml-8 flex align-items-center">
-                                    <div className="surface-300 border-round overflow-hidden w-10rem lg:w-6rem" style={{ height: '8px' }}>
-                                        <div className="bg-cyan-500 h-full" style={{ width: '16%' }} />
-                                    </div>
-                                    <span className="text-cyan-500 ml-3 font-medium">%16</span>
-                                </div>
-                            </li>
-                            <li className="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
-                                <div>
-                                    <span className="text-900 font-medium mr-2 mb-1 md:mb-0">Bánh kem</span>
-                                    <div className="mt-1 text-600">Cake</div>
-                                </div>
-                                <div className="mt-2 md:mt-0 ml-0 md:ml-8 flex align-items-center">
-                                    <div className="surface-300 border-round overflow-hidden w-10rem lg:w-6rem" style={{ height: '8px' }}>
-                                        <div className="bg-pink-500 h-full" style={{ width: '67%' }} />
-                                    </div>
-                                    <span className="text-pink-500 ml-3 font-medium">%67</span>
-                                </div>
-                            </li>
-                            <li className="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
-                                <div>
-                                    <span className="text-900 font-medium mr-2 mb-1 md:mb-0">Bạc xỉu</span>
-                                    <div className="mt-1 text-600">Coffee</div>
-                                </div>
-                                <div className="mt-2 md:mt-0 ml-0 md:ml-8 flex align-items-center">
-                                    <div className="surface-300 border-round overflow-hidden w-10rem lg:w-6rem" style={{ height: '8px' }}>
-                                        <div className="bg-green-500 h-full" style={{ width: '35%' }} />
-                                    </div>
-                                    <span className="text-green-500 ml-3 font-medium">%35</span>
-                                </div>
-                            </li>
-                            <li className="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
-                                <div>
-                                    <span className="text-900 font-medium mr-2 mb-1 md:mb-0">Trà sữa kem trứng</span>
-                                    <div className="mt-1 text-600">Trà</div>
-                                </div>
-                                <div className="mt-2 md:mt-0 ml-0 md:ml-8 flex align-items-center">
-                                    <div className="surface-300 border-round overflow-hidden w-10rem lg:w-6rem" style={{ height: '8px' }}>
-                                        <div className="bg-purple-500 h-full" style={{ width: '75%' }} />
-                                    </div>
-                                    <span className="text-purple-500 ml-3 font-medium">%75</span>
-                                </div>
-                            </li>
+                            {dataFetch2?.bestSeller.map((p, i) => {
+                                return (
+                                    <li className="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4" key={i}>
+                                        <div>
+                                            <span className="text-900 font-medium mr-2 mb-1 md:mb-0">{p.productName}</span>
+                                            <div className="mt-1 text-600 capitalize">{p.category}</div>
+                                        </div>
+                                        <div className="mt-2 md:mt-0 flex align-items-center">
+                                            <span className="text-orange-500 ml-3 font-medium">BEST SELLER!!!</span>
+                                        </div>
+                                    </li>
+                                );
+                            })}
                         </ul>
                     </div>
                 </div>
