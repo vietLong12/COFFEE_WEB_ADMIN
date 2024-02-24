@@ -24,8 +24,13 @@ const page = () => {
             .then((stream) => {
                 videoRef.current.srcObject = stream;
                 const peer = new Peer({ initiator: true, trickle: false, stream: stream });
+                console.log('peer: ', peer);
 
                 peer.on('signal', (data) => {
+                    socket.emit('stream', data);
+                });
+                peer.on('stream', (data) => {
+                    console.log('data: ', data);
                     socket.emit('stream', data);
                 });
                 setPeer(peer);
