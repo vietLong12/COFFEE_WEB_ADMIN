@@ -1,10 +1,12 @@
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import { BASE_URL } from './type';
+import axiosInterceptor from '../axiosInterceptors';
 
 const request = axios.create({
     baseURL: BASE_URL
 });
+axiosInterceptor(request);
 
 export class ExcelService {
     static exportAccount = async () => {

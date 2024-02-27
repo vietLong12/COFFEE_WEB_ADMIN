@@ -9,17 +9,23 @@ import { LayoutContext } from '../../../../layout/context/layoutcontext';
 import { InputText } from 'primereact/inputtext';
 import { classNames } from 'primereact/utils';
 import Cookies from 'js-cookie';
+import { LoginService } from '../../../../common/service/LoginService';
+import Swal from 'sweetalert2';
+import { AuthContext } from '../../../../layout/context/authContext';
 const LoginPage = () => {
     const [password, setPassword] = useState('');
+    const [username, setUsername] = useState('');
     const [checked, setChecked] = useState(false);
     const { layoutConfig } = useContext(LayoutContext);
-
+    const { setToken } = useContext(AuthContext);
     const router = useRouter();
     const containerClassName = classNames('surface-ground flex align-items-center justify-content-center min-h-screen min-w-screen overflow-hidden', { 'p-input-filled': layoutConfig.inputStyle === 'filled' });
-    function handleLogin() {
-        Cookies.set('token', password);
-        
-        router.push('/management/orders');
+    async function handleLogin() {
+        const dataLogin = await LoginService.loginAccount({ username, password });
+        if (dataLogin) {
+            Cookies.set('token', JSON.stringify(dataLogin));
+            router.push('/');
+        }
     }
     return (
         <div className={containerClassName}>
@@ -37,16 +43,16 @@ const LoginPage = () => {
 
                         <div>
                             <label htmlFor="email1" className="block text-900 text-xl font-medium mb-2">
-                                Username:
+                                Tên đăng nhập:
                             </label>
-                            <InputText id="email1" type="text" placeholder="Email address" className="w-full md:w-30rem mb-5" style={{ padding: '1rem' }} />
+                            <InputText id="email1" value={username} onChange={(e) => setUsername(e.target.value)} type="text" placeholder="Nhập tên đăng nhập..." className="w-full md:w-30rem mb-5" style={{ padding: '1rem' }} />
 
                             <label htmlFor="password1" className="block text-900 font-medium text-xl mb-2">
-                                Password:
+                                Mật khẩu :
                             </label>
-                            <Password inputId="password1" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" toggleMask className="w-full mb-5" inputClassName="w-full p-3 md:w-30rem"></Password>
+                            <Password inputId="password1" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Nhập mật khẩu..." className="w-full mb-5" inputClassName="w-full p-3 md:w-30rem"></Password>
 
-                            <Button label="Sign In" className="w-full p-3 text-xl" onClick={handleLogin}></Button>
+                            <Button label="Đăng nhập" className="w-full p-3 text-xl" onClick={handleLogin}></Button>
                         </div>
                     </div>
                 </div>

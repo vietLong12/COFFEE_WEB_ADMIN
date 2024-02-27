@@ -1,57 +1,45 @@
-import axios from "axios";
-import Swal from "sweetalert2";
-import { BASE_URL } from "./type";
+import axios from 'axios';
+import Swal from 'sweetalert2';
+import { BASE_URL } from './type';
 
 const request = axios.create({
-  baseURL: BASE_URL,
+    baseURL: 'http://localhost:5000'
 });
 
 interface LoginRequest {
-  email: string;
-  password: string;
-  isRememberMe: boolean;
+    username: string;
+    password: string;
 }
 
 interface LoginTokenRequest {
-  token: string;
+    token: string;
 }
 
 interface LogoutRequest {
-  email: string;
+    email: string;
 }
 
 export class LoginService {
-  static loginAccount = async (logReq: LoginRequest) => {
-    try {
-      const response = await request.post(`/auth/login`, logReq);
-      if (response.data.code === 400) {
-        throw {
-          message: response.data.msg,
-        };
-      }
-      return response.data;
-    } catch (error) {
-      Swal.fire({
-        icon: "error",
-        title: "Có lỗi xảy ra",
-        text: "Đăng nhập thất bại, vui lòng kiểm tra lại thông tin",
-      });
-    }
-  };
-
-  static logoutAccount = async (logoutReq: LogoutRequest) => {
-    const req = {
-      email: logoutReq.email,
+    static loginAccount = async (logReq: LoginRequest) => {
+        try {
+            const response = await request.post(`/login`, logReq);
+            return response.data;
+        } catch (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Có lỗi xảy ra',
+                text: 'Đăng nhập thất bại, vui lòng kiểm tra lại thông tin'
+            });
+        }
     };
-    const response = await request.post(`/auth/logout`, req);
-    return response.data;
-  };
 
-  static loginAccountByToken = async (logReq: LoginTokenRequest) => {
-    const req = {
-      token: logReq,
+    static logoutAccount = async (username: string) => {
+        const response = await request.post(`/logout`, username);
+        return response.data;
     };
-    const response = await request.post(`/auth/login`, req);
-    return response.data;
-  };
+
+    static getVerifyToken = async (refreshToken: string) => {
+        const response = await request.post(`/token`, { refreshToken: refreshToken });
+        return response.data;
+    };
 }

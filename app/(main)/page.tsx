@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Chart } from 'primereact/chart';
 import { Card } from 'primereact/card';
 import { Calendar } from 'primereact/calendar';
@@ -10,6 +10,8 @@ import { Column } from 'primereact/column';
 import { DataTable } from 'primereact/datatable';
 import { Menu } from 'primereact/menu';
 import { DashboardService } from '../../common/service/DashboardService';
+import { AuthContext, AuthProvider } from '../../layout/context/authContext';
+import Swal from 'sweetalert2';
 
 interface ResponseInfor {
     orders: {
@@ -52,6 +54,8 @@ interface ResponseInfor2 {
 }
 
 export default function StackedBarDemo() {
+    const { token } = useContext(AuthContext);
+
     const [dataFetch, setDataFetch] = useState<ResponseInfor | null>(null);
     const [dataFetch2, setDataFetch2] = useState<ResponseInfor2 | null>(null);
     console.log('dataFetch2: ', dataFetch2);
@@ -151,8 +155,8 @@ export default function StackedBarDemo() {
     //Donut chart
     useEffect(() => {
         const fetchData = async () => {
-            const data1 = await DashboardService.getDashboardInfor();
-            const data2 = await DashboardService.getDashboardChart();
+            const data1 = await DashboardService.getDashboardInfor(token.accessToken);
+            const data2 = await DashboardService.getDashboardChart(token.accessToken);
             console.log('data2: ', data2);
             setDataFetch(data1.data);
             setDataFetch2(data2.data);

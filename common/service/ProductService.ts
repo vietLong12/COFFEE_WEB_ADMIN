@@ -1,6 +1,7 @@
 import Swal from 'sweetalert2';
 import axios, { AxiosResponse } from 'axios';
 import { BASE_URL } from './type';
+import axiosInterceptor from '../axiosInterceptors';
 
 const request = axios.create({
     baseURL: BASE_URL
@@ -32,6 +33,7 @@ interface PutProductReq {
     desc?: string;
     img?: string;
 }
+axiosInterceptor(request);
 
 export class ProductService {
     static async postCategory(category: string) {

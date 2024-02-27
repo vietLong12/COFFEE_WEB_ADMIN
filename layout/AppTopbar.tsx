@@ -3,10 +3,15 @@
 import Link from 'next/link';
 import { classNames } from 'primereact/utils';
 import React, { forwardRef, useContext, useImperativeHandle, useRef } from 'react';
-import { AppTopbarRef } from '../types/types';
+import { AppTopbarRef, LayoutState } from '../types/types';
 import { LayoutContext } from './context/layoutcontext';
 import AppConfig from './AppConfig';
 import { usePathname } from 'next/navigation';
+import { TieredMenu } from 'primereact/tieredmenu';
+import { Button } from 'primereact/button';
+import { MenuItem } from 'primereact/menuitem';
+import Cookies from 'js-cookie';
+import Swal from 'sweetalert2';
 
 const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
     const { layoutConfig, setLayoutConfig, layoutState, onMenuToggle, showProfileSidebar, setLayoutState } = useContext(LayoutContext);
@@ -44,6 +49,36 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
         topbarmenubutton: topbarmenubuttonRef.current
     }));
 
+    const menu = useRef(null);
+    console.log('menu: ', menu);
+    const items: MenuItem[] = [
+        {
+            label: 'Thông tin cá nhân',
+            icon: 'pi pi-user',
+            command: () => {
+                Swal.fire({ icon: 'success', title: 'Tính năng đang phát triển, vui lòng thử lại sau' });
+            }
+        },
+        {
+            label: 'Đăng xuất',
+            icon: 'pi pi-sign-out',
+            command: () => {
+                Cookies.remove('token');
+                window.location.assign('/auth/login');
+            }
+        },
+        {
+            separator: true
+        },
+        {
+            label: 'Cài đặt',
+            icon: 'pi pi-cog',
+            command: () => {
+                setLayoutState((prevState: LayoutState) => ({ ...prevState, configSidebarVisible: true }));
+            }
+        }
+    ];
+
     return (
         <div className="layout-topbar align-content-center flex">
             <Link href="/" className="layout-topbar-logo" style={{ width: '240px' }}>
@@ -63,13 +98,10 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
             </button>
 
             <div ref={topbarmenuRef} className={classNames('layout-topbar-menu', { 'layout-topbar-menu-mobile-active': layoutState.profileSidebarVisible })}>
-                <button type="button" className="p-link layout-topbar-button">
+                <button type="button" className="p-link layout-topbar-button" onClick={(e) => menu.current.toggle(e)}>
                     <i className="pi pi-user"></i>
-                    <span>Profile</span>
-                </button>
-                <button type="button" className="p-link layout-topbar-button" onClick={() => setLayoutState((prevState: LayoutState) => ({ ...prevState, configSidebarVisible: true }))}>
-                    <i className="pi pi-cog"></i>
-                    <span>Settings</span>
+                    <TieredMenu model={items} popup ref={menu} breakpoint="767px" className="mt-2" />
+                    <span>Người dùng</span>
                 </button>
             </div>
             <AppConfig />
