@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 function isLoggedIn(request: NextRequest) {
-    const token = request.cookies.get('token');
+    const token = request.cookies.get('tokenAdmin');
     return token !== undefined;
 }
 

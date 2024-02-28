@@ -19,12 +19,12 @@ interface RootLayoutProps {
 export default function RootLayout({ children }: RootLayoutProps) {
     useEffect(() => {
         const timeout = setInterval(() => {
-            const token = Cookies.get('token');
+            const token = Cookies.get('tokenAdmin');
             if (token) {
                 let tokenJson = JSON.parse(token);
                 axios.post('http://localhost:5000/token', { refreshToken: tokenJson.refreshToken }).then((res: any) => {
                     tokenJson = { ...tokenJson, refreshToken: res.data.refreshToken, accessToken: res.data.accessToken };
-                    Cookies.set('token', JSON.stringify(tokenJson));
+                    Cookies.set('tokenAdmin', JSON.stringify(tokenJson));
                 });
             }
         }, 25000);

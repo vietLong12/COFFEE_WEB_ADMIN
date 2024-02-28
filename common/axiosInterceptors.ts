@@ -6,7 +6,7 @@ import Cookies from 'js-cookie';
 const axiosInterceptor = (http: AxiosInstance) => {
     http.interceptors.request.use(
         (request) => {
-            const token = Cookies.get('token');
+            const token = Cookies.get('tokenAdmin');
             if (token) {
                 const tokenJson = JSON.parse(token);
                 request.headers.setAccept('application/json');
@@ -30,24 +30,9 @@ const axiosInterceptor = (http: AxiosInstance) => {
         },
         (error: AxiosError) => {
             console.error('Response interceptor error:', error);
+            Cookies.remove('tokenAdmin');
+            window.location.assign('/auth/login');
 
-            if (error.response?.status === 403) {
-                const token = Cookies.get('token');
-                if (token) {
-                    let tokenJson = JSON.parse(token);
-                    axios.post('http://localhost:5000/token', { refreshToken: tokenJson.refreshToken }).then((res: any) => {
-                        console.log('resfreshToken return: ', res);
-                        tokenJson = { ...tokenJson, refreshToken: res.data.refreshToken, accessToken: res.data.accessToken };
-                        console.log('tokenJson: ', tokenJson);
-                        Cookies.set('token', JSON.stringify(tokenJson));
-                        window.location.assign('/');
-                    });
-                } else {
-                    window.location.assign('/auth/login');
-                }
-            } else {
-                window.location.assign('/auth/login');
-            }
             return Promise.reject(error);
         }
     );

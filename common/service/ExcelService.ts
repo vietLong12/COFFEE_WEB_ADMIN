@@ -27,7 +27,7 @@ export class ExcelService {
     };
     static exportOrder = async () => {
         try {
-            const response = await request.get(`/export/accounts`);
+            const response = await request.get(`/export/orders`);
             return response.data;
         } catch (error: any) {
             Swal.fire({ icon: 'error', title: error.message });

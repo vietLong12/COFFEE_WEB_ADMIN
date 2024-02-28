@@ -3,8 +3,8 @@ import { Avatar } from 'primereact/avatar';
 import { Button } from 'primereact/button';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import io from 'socket.io-client';
-import Peer from 'simple-peer';
 import { data } from '../management/fakeData/DataAccount';
+import Peer from 'peerjs';
 
 const ENDPOINT = 'http://localhost:5500'; // Địa chỉ máy chủ của bạn
 const socket = io.connect(ENDPOINT);
@@ -17,22 +17,35 @@ const page = () => {
     const [onMic, setOnMic] = useState(true);
     const [onCam, setOnCam] = useState(true);
     const [online, setOnline] = useState(true);
-    useLayoutEffect(() => {
+    useEffect(() => {
+        // Kết nối với máy chủ Socket.IO
+        const socket = io('/');
+
         const constraints = { video: true };
         navigator.mediaDevices
             .getUserMedia(constraints)
             .then((stream) => {
+                // Đặt luồng phương tiện cho videoRef
                 videoRef.current.srcObject = stream;
-                const peer = new Peer({ initiator: true, trickle: false, stream: stream });
-                console.log('peer: ', peer);
 
-                peer.on('signal', (data) => {
-                    socket.emit('stream', data);
+                // Tạo một đối tượng Peer
+                const peer = new Peer();
+
+                // Khi kết nối Peer được mở, gửi luồng video qua socket
+                peer.on('open', (id) => {
+                    console.log('Peer ID:', id);
+                    const call = peer.call('b8c4fb88-c41e-4af4-bd28-63c7bffb33d2', stream); // Thay 'recipientPeerID' bằng ID của Peer nhận luồng
+                    console.log('call: ', call);
+                    socket.emit('stream', id); // Gửi luồng video tới máy chủ FE khác
                 });
-                peer.on('stream', (data) => {
-                    console.log('data: ', data);
-                    socket.emit('stream', data);
+
+                // Lắng nghe sự kiện 'call' và trả lời cuộc gọi
+                peer.on('call', (call) => {
+                    console.log('call: ', call);
+                    call.answer(stream); // Trả lời cuộc gọi với luồng video
                 });
+
+                // Lưu trữ đối tượng Peer vào state
                 setPeer(peer);
             })
             .catch((error) => {
@@ -41,13 +54,18 @@ const page = () => {
             });
 
         return () => {
+            // Đóng tất cả các luồng video
             if (videoRef.current && videoRef.current.srcObject) {
                 videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
             }
+
             // Đóng kết nối Peer khi component bị unmount
             if (peer) {
                 peer.destroy();
             }
+
+            // Đóng kết nối Socket.IO khi component bị unmount
+            socket.disconnect();
         };
     }, [socket]);
 

@@ -63,7 +63,7 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
             label: 'Đăng xuất',
             icon: 'pi pi-sign-out',
             command: () => {
-                Cookies.remove('token');
+                Cookies.remove('tokenAdmin');
                 window.location.assign('/auth/login');
             }
         },

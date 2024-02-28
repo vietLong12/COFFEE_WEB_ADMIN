@@ -23,7 +23,7 @@ const LoginPage = () => {
     async function handleLogin() {
         const dataLogin = await LoginService.loginAccount({ username, password });
         if (dataLogin) {
-            Cookies.set('token', JSON.stringify(dataLogin));
+            Cookies.set('tokenAdmin', JSON.stringify(dataLogin));
             router.push('/');
         }
     }
