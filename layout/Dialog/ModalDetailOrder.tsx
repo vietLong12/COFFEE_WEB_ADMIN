@@ -32,12 +32,11 @@ const ModalDetailOrder = ({ orderId, visible, setVisible }: DetailOrderProps) =>
         return <p>{convertVND(data.quantity)}</p>;
     }
 
-    console.log('order: ', order);
     useEffect(() => {
         const fetchData = async () => {
             const res = await OrderService.getOrderById(orderId);
             let items = [...res.order.items];
-            console.log('items: ', items);
+            ('items: ', items);
             items = items.map(async (item) => {
                 const res = await ProductService.getProductById(item.productId);
                 const sizes = [...res.product.sizes];

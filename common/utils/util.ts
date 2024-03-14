@@ -15,6 +15,17 @@ export function getDaysInMonth(year: number, month: number) {
 }
 
 //Chuyển định dạng số 1000 -> 1.000
-export function numberWithCommas(x: number) {
+export function numberWithCommas(x: number | string | undefined) {
+    if (!x) {
+        return '0';
+    }
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+
+export function convertToVND(tien: any) {
+    let temp = '0';
+    if (tien) {
+        temp = tien.toString() + '000';
+    }
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(temp);
 }

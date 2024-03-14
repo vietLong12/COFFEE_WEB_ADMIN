@@ -37,7 +37,6 @@ const Orders = () => {
     };
 
     const handleChangeStatus = async (orderId: string, statusOrder: '1' | '2' | '3' | '4') => {
-        console.log('orderId: ', orderId, statusOrder);
         setLoading(true);
         const res = await OrderService.putOrder({ orderId: orderId, statusOrder: statusOrder });
         if (res) {
@@ -51,7 +50,6 @@ const Orders = () => {
     };
 
     const statusBodyTemplate = (order) => {
-        console.log('order: ', order);
         const arr = [
             { name: 'In progress', code: '2', bg: 'bg-yellow-200' },
             { name: 'Pending', code: '1', bg: 'bg-cyan-200	' },
@@ -59,7 +57,6 @@ const Orders = () => {
             { name: 'Cancel', code: '4', bg: 'bg-red-200' }
         ];
         const filt = arr.filter((item) => item.name === order.status);
-        console.log('filt: ', filt);
         return <Dropdown value={filt[0]} options={arr} optionLabel="name" onChange={(e) => handleChangeStatus(order._id, e.target.value.code)} className={`${filt[0].bg} w-full`} />;
     };
 

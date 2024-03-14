@@ -111,12 +111,14 @@ const ModalProducts = ({ visible, setVisible, isEdit, productData, setProductDat
                         setLoading(false);
                         Swal.fire({ icon: 'success', title: 'Thêm sản phẩm thành công' });
                         setRender(!render);
-                        setListSize([]);
+                        setListSizeReq([]);
                         setSelectedCategory({});
+                        setVisible(false);
                     }
                 }
                 // Object hợp lệ
             } catch (errors) {
+                setLoading(false);
                 console.log('errors: ', errors.errors);
                 errors.errors.map((err) => {
                     toast.current?.show({ severity: 'error', detail: err, summary: 'Cảnh báo' });
@@ -139,7 +141,7 @@ const ModalProducts = ({ visible, setVisible, isEdit, productData, setProductDat
                     Swal.fire({ icon: 'success', title: 'Sửa sản phẩm thành công' });
                     setRender(!render);
                     setVisible(false);
-                    setListSize([]);
+                    setListSizeReq([]);
                     setSelectedCategory({});
                 }
             } catch (error) {
@@ -162,7 +164,6 @@ const ModalProducts = ({ visible, setVisible, isEdit, productData, setProductDat
     };
 
     const deleteSize = (index) => {
-        console.log('index: ', index);
         const updatedList = [...listSizeReq];
         updatedList.splice(index, 1);
         setListSizeReq(updatedList);
@@ -179,7 +180,7 @@ const ModalProducts = ({ visible, setVisible, isEdit, productData, setProductDat
             onHide={() => {
                 setVisible(false), setSelectedCategory({});
                 setProductData({});
-                setListSize([]);
+                setListSizeReq([]);
             }}
         >
             <LoadingCustom visible={loading} />

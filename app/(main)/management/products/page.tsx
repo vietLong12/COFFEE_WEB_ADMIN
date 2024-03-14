@@ -17,6 +17,8 @@ import ModalDetailProduct from '../../../../layout/Dialog/ModalDetailProduct';
 import Loading from '../loading';
 import download from 'downloadjs';
 import LoadingCustom from '../../../../common/components/Loading';
+import Swal from 'sweetalert2';
+import { ConfirmPopup, confirmPopup } from 'primereact/confirmpopup';
 
 export default function Products() {
     const [isEdit, setIsEdit] = useState<boolean>(false);
@@ -58,12 +60,12 @@ export default function Products() {
 
     const renderHeader = () => {
         return (
-            <div className="flex justify-content-between pr-5 mr-5">
+            <div className="md:flex justify-content-between pr-5 mr-5">
                 <span className="p-input-icon-left">
                     <i className="pi pi-search" />
                     <InputText value={globalFilterValue} onChange={onGlobalFilterChange} placeholder="Keyword Search" />
                 </span>
-                <div>
+                <div className='mt-2 md:mt-0'>
                     <Button
                         type="button"
                         icon="pi pi-user-plus"
@@ -168,17 +170,35 @@ export default function Products() {
     };
 
     const actionBodyTemplate = (rowData: Account) => {
-        const handleDelete = async (id: string) => {
-            const response = await ProductService.deleteProduct(id);
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: 'pi pi-trash',
+                cancelButton: 'pi pi-times'
+            },
+            buttonsStyling: false
+        });
+
+        const accept = async () => {
+            const response = await ProductService.deleteProduct(rowData._id);
             if (response) {
-                toast.current?.show({
-                    severity: 'success',
-                    summary: 'Successful',
-                    detail: 'Đã xóa sản phẩm',
-                    life: 3000
-                });
+                toast.current.show({ severity: 'info', summary: 'Confirmed', detail: 'Xóa sản phẩm thành công', life: 3000 });
                 setRender(!render);
             }
+        };
+
+        const reject = () => {
+            toast?.current.show({ severity: 'warn', summary: 'Rejected', detail: 'Hủy bỏ thành công', life: 3000 });
+        };
+        const confirm2 = (event) => {
+            confirmPopup({
+                target: event.currentTarget,
+                message: 'Bạn có chắc rằng muốn xóa sản phẩm không?',
+                icon: 'pi pi-info-circle',
+                defaultFocus: 'reject',
+                acceptClassName: 'p-button-danger',
+                accept,
+                reject
+            });
         };
         return (
             <div className="">
@@ -193,7 +213,9 @@ export default function Products() {
                         setProductData(rowData);
                     }}
                 />
-                <Button severity="danger" icon="pi pi-trash" rounded onClick={() => handleDelete(rowData._id)} />
+                <ConfirmPopup />
+
+                <Button onClick={confirm2} icon="pi pi-trash" label="" className="p-button-danger" rounded></Button>
             </div>
         );
     };

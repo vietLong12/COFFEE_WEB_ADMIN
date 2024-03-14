@@ -25,7 +25,6 @@ const axiosInterceptor = (http: AxiosInstance) => {
     http.interceptors.response.use(
         (response: AxiosResponse) => {
             // Thực hiện bất kỳ thay đổi nào bạn muốn vào response trước khi nó được trả về
-            console.log('Get API Successfully');
             return response;
         },
         (error: AxiosError) => {

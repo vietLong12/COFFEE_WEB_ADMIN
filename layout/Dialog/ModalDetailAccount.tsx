@@ -74,11 +74,11 @@ const ModalDetailAccount = ({ account, visible, setVisible }: ModalDetailAccount
                     <div className="flex flex-row gap-2 mb-3">
                         <div className="flex flex-column gap-2 w-6">
                             <label htmlFor="token">Số lượng sản phẩm trong giỏ:</label>
-                            <InputNumber id="token" value={account?.cart.items.length} aria-describedby="token-help" className='disabled-input' />
+                            <InputNumber id="token" value={account?.cart.items.length} aria-describedby="token-help" disabled />
                         </div>
                         <div className="flex flex-column gap-2 w-6">
                             <label htmlFor="token">Số địa chỉ lưu trữ:</label>
-                            <InputNumber id="token" value={account?.address.length} aria-describedby="token-help" className='disabled-input' />
+                            <InputNumber id="token" value={account?.address.length} aria-describedby="token-help" disabled />
                         </div>
                     </div>
                     <div className="flex flex-rơw gap-2 mb-3">

@@ -3,7 +3,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { Chart } from 'primereact/chart';
 import { Card } from 'primereact/card';
 import { Calendar } from 'primereact/calendar';
-import { getDaysInMonth, numberWithCommas } from '../../common/utils/util';
+import { convertToVND, getDaysInMonth, numberWithCommas } from '../../common/utils/util';
 import { Button } from 'primereact/button';
 import Link from 'next/link';
 import { Column } from 'primereact/column';
@@ -58,7 +58,6 @@ export default function StackedBarDemo() {
 
     const [dataFetch, setDataFetch] = useState<ResponseInfor | null>(null);
     const [dataFetch2, setDataFetch2] = useState<ResponseInfor2 | null>(null);
-    console.log('dataFetch2: ', dataFetch2);
     const [chartData, setChartData] = useState({});
     const [chartOptions, setChartOptions] = useState({});
 
@@ -157,7 +156,6 @@ export default function StackedBarDemo() {
         const fetchData = async () => {
             const data1 = await DashboardService.getDashboardInfor(token.accessToken);
             const data2 = await DashboardService.getDashboardChart(token.accessToken);
-            console.log('data2: ', data2);
             setDataFetch(data1.data);
             setDataFetch2(data2.data);
 
@@ -254,7 +252,7 @@ export default function StackedBarDemo() {
         <>
             <div className="grid">
                 <div className="col-12 lg:col-6 xl:col-3">
-                    <div className="card mb-0">
+                    <div className="card mb-0 h-full">
                         <div className="flex justify-content-between mb-3">
                             <div>
                                 <span className="block text-500 font-medium mb-3">Đơn hàng</span>
@@ -269,11 +267,11 @@ export default function StackedBarDemo() {
                     </div>
                 </div>
                 <div className="col-12 lg:col-6 xl:col-3">
-                    <div className="card mb-0">
+                    <div className="card mb-0 h-full">
                         <div className="flex justify-content-between mb-3">
                             <div>
                                 <span className="block text-500 font-medium mb-3">Doanh thu</span>
-                                <div className="text-900 font-medium text-xl">{dataFetch?.revenue.data}đ</div>
+                                <div className="text-900 font-medium text-xl">{convertToVND(dataFetch?.revenue.data)}</div>
                             </div>
                             <div className="flex align-items-center justify-content-center bg-orange-100 border-round" style={{ width: '2.5rem', height: '2.5rem' }}>
                                 <i className="pi pi-map-marker text-orange-500 text-xl" />
@@ -282,11 +280,11 @@ export default function StackedBarDemo() {
                         <span className="text-green-500 font-medium">
                             {dataFetch?.revenue.increase ? 'Tăng' : 'Giảm'} {dataFetch?.revenue.percent}%{' '}
                         </span>
-                        <span className="text-500">kể từ tháng trước</span>
+                        <span className="text-500">kể từ tháng trước </span>
                     </div>
                 </div>
                 <div className="col-12 lg:col-6 xl:col-3">
-                    <div className="card mb-0">
+                    <div className="card mb-0 h-full">
                         <div className="flex justify-content-between mb-3">
                             <div>
                                 <span className="block text-500 font-medium mb-3">Người dùng</span>
@@ -301,7 +299,7 @@ export default function StackedBarDemo() {
                     </div>
                 </div>
                 <div className="col-12 lg:col-6 xl:col-3">
-                    <div className="card mb-0">
+                    <div className="card mb-0 h-full">
                         <div className="flex justify-content-between mb-3">
                             <div>
                                 <span className="block text-500 font-medium mb-3">Bình luận</span>

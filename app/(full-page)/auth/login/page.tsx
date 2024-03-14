@@ -38,19 +38,19 @@ const LoginPage = () => {
                         background: 'linear-gradient(180deg, var(--primary-color) 10%, rgba(33, 150, 243, 0) 30%)'
                     }}
                 >
-                    <div className="w-full surface-card py-8 px-5 sm:px-8" style={{ borderRadius: '53px' }}>
-                        <div className="text-center mb-5"></div>
+                    <div className="w-full surface-card pt-5 pb-7 px-5 sm:px-8" style={{ borderRadius: '53px' }}>
+                        <div className="text-center mb-5 text-5xl">Monster Coffee</div>
 
                         <div>
                             <label htmlFor="email1" className="block text-900 text-xl font-medium mb-2">
                                 Tên đăng nhập:
                             </label>
-                            <InputText id="email1" value={username} onChange={(e) => setUsername(e.target.value)} type="text" placeholder="Nhập tên đăng nhập..." className="w-full md:w-30rem mb-5" style={{ padding: '1rem' }} />
+                            <InputText id="email1" value={username} onChange={(e) => setUsername(e.target.value)} type="text" placeholder="Nhập tên đăng nhập..." className="w-full mb-5" style={{ padding: '1rem' }} />
 
                             <label htmlFor="password1" className="block text-900 font-medium text-xl mb-2">
                                 Mật khẩu :
                             </label>
-                            <Password inputId="password1" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Nhập mật khẩu..." className="w-full mb-5" inputClassName="w-full p-3 md:w-30rem"></Password>
+                            <Password inputId="password1" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Nhập mật khẩu..." className="w-full mb-5" inputClassName="w-full p-3"></Password>
 
                             <Button label="Đăng nhập" className="w-full p-3 text-xl" onClick={handleLogin}></Button>
                         </div>

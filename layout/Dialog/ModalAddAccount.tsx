@@ -40,7 +40,6 @@ const ModalAddAccount = ({ visible, setVisible, setRender, render }: ModalAddAcc
     );
 
     const handleFileUpload = (e) => {
-        console.log('e: ', e);
         setAvatarLink(e.files[0]);
     };
 
@@ -48,7 +47,6 @@ const ModalAddAccount = ({ visible, setVisible, setRender, render }: ModalAddAcc
         setLoading(true);
         if (values) {
             const account = await AccountService.getListAccount({ keyword: values.email });
-            console.log('account: ', account);
             if (account.accounts.length > 0) {
                 toast.current?.show({ severity: 'error', summary: 'Error', detail: 'Tài khoản đã tồn tại', life: 3000 });
             } else {
@@ -61,7 +59,6 @@ const ModalAddAccount = ({ visible, setVisible, setRender, render }: ModalAddAcc
                     values.avatar = 'https://seud.org/wp-content/uploads/2020/06/avatar-nobody.png';
                 }
                 const dataResponse = await AccountService.createAccount(values);
-                console.log('dataResponse: ', dataResponse);
                 if (dataResponse) {
                     resetForm();
                     setRender(!render);

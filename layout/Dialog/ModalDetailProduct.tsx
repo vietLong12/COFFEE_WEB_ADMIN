@@ -70,7 +70,7 @@ const ModalDetailProduct = ({ product, visible, setVisible, listCategory }: Moda
                     <div className="flex flex-row gap-2 mb-3">
                         <div className="flex flex-column w-6">
                             <label htmlFor="token">Số lượng đánh giá:</label>
-                            <InputNumber id="token" value={productData?.listComment.length} aria-describedby="token-help" className="disabled-input" />
+                            <InputNumber id="token" value={productData?.listComment.length} aria-describedby="token-help" disabled />
                         </div>
                         <div className="flex flex-column gap-2 w-6 ">
                             <label htmlFor="token" className="h-2rem">

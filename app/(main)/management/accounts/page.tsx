@@ -26,6 +26,7 @@ import { LayoutContext } from '../../../../layout/context/layoutcontext';
 import { ExcelService } from '../../../../common/service/ExcelService';
 import axios from 'axios';
 import download from 'downloadjs';
+import { ConfirmPopup, confirmPopup } from 'primereact/confirmpopup';
 
 export default function BasicFilterDemo() {
     const [isEdit, setIsEdit] = useState<boolean>(false);
@@ -69,10 +70,10 @@ export default function BasicFilterDemo() {
             setTimeout(() => {
                 setLoading(false);
                 setRender(!render);
-                toast.current?.show({ severity: 'success', summary: 'Success', detail: 'Xóa thành công', life: 3000 });
+                toast.current?.show({ severity: 'success', summary: 'Thành công', detail: 'Xóa thành công', life: 3000 });
             }, 2000);
         } else {
-            toast.current?.show({ severity: 'error', summary: 'Error', detail: 'Xóa thất bại', life: 3000 });
+            toast.current?.show({ severity: 'error', summary: 'Đã xảy ra lỗi', detail: 'Xóa thất bại', life: 3000 });
         }
     };
 
@@ -159,6 +160,24 @@ export default function BasicFilterDemo() {
     };
 
     const actionBodyTemplate = (rowData: Account) => {
+        const accept = () => {
+            handleDeleteAccount(rowData);
+        };
+
+        const reject = () => {
+            toast.current.show({ severity: 'warn', summary: 'Hủy thành công', detail: 'Bạn đã hủy bỏ ', life: 3000 });
+        };
+        const confirm2 = (event) => {
+            confirmPopup({
+                target: event.currentTarget,
+                message: 'Bạn có chắc là sẽ xóa tài khoản này?',
+                icon: 'pi pi-info-circle',
+                defaultFocus: 'reject',
+                acceptClassName: 'p-button-danger',
+                accept,
+                reject
+            });
+        };
         return (
             <div className="">
                 <Button
@@ -172,7 +191,8 @@ export default function BasicFilterDemo() {
                         setAccountData(rowData);
                     }}
                 />
-                <Button severity="danger" icon="pi pi-trash" rounded onClick={() => handleDeleteAccount(rowData)} />
+                <ConfirmPopup />
+                <Button onClick={confirm2} icon="pi pi-trash" label="" rounded className="p-button-danger"></Button>
             </div>
         );
     };

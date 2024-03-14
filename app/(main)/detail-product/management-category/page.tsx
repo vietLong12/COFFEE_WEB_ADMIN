@@ -13,9 +13,7 @@ const page = () => {
     const [render, setRender] = useState<any>(false);
     const [visible, setVisible] = useState(false);
     const [category, setCategory] = useState('');
-    console.log('list: ', list);
     useEffect(() => {
-        console.log('fetching data...');
         ProductService.getListCategory().then((listCategory) => {
             setList(listCategory.data);
         });

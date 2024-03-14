@@ -11,17 +11,14 @@ const socket = io.connect(ENDPOINT);
 
 const page = () => {
     const [receivedMessages, setReceivedMessages] = useState<any>([]);
-    const [peer, setPeer] = useState<any>(null);
     const videoRef = useRef<any>(null);
-    console.log('videoRef: ', videoRef);
+    const peerRef = useRef<any>(null);
     const [onMic, setOnMic] = useState(true);
     const [onCam, setOnCam] = useState(true);
     const [online, setOnline] = useState(true);
     useEffect(() => {
         // Kết nối với máy chủ Socket.IO
-        const socket = io('/');
-
-        const constraints = { video: true };
+        const constraints = { video: true, audio: true };
         navigator.mediaDevices
             .getUserMedia(constraints)
             .then((stream) => {
@@ -34,19 +31,20 @@ const page = () => {
                 // Khi kết nối Peer được mở, gửi luồng video qua socket
                 peer.on('open', (id) => {
                     console.log('Peer ID:', id);
-                    const call = peer.call('b8c4fb88-c41e-4af4-bd28-63c7bffb33d2', stream); // Thay 'recipientPeerID' bằng ID của Peer nhận luồng
+                    const call = peer.call('c7bd2900-cd06-4e10-b60d-48f7f161a22d123', stream); // Thay 'recipientPeerID' bằng ID của Peer nhận luồng
                     console.log('call: ', call);
-                    socket.emit('stream', id); // Gửi luồng video tới máy chủ FE khác
+
+                    socket.emit('stream', call); // Gửi luồng video tới máy chủ FE khác
                 });
 
                 // Lắng nghe sự kiện 'call' và trả lời cuộc gọi
                 peer.on('call', (call) => {
-                    console.log('call: ', call);
+                    console.log('call 123: ', call);
                     call.answer(stream); // Trả lời cuộc gọi với luồng video
                 });
 
                 // Lưu trữ đối tượng Peer vào state
-                setPeer(peer);
+                peerRef.current = peer;
             })
             .catch((error) => {
                 console.error('Error accessing webcam:', error);
@@ -59,11 +57,9 @@ const page = () => {
                 videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
             }
 
-            // Đóng kết nối Peer khi component bị unmount
-            if (peer) {
-                peer.destroy();
+            if (peerRef) {
+                peerRef.current.disconnect();
             }
-
             // Đóng kết nối Socket.IO khi component bị unmount
             socket.disconnect();
         };
@@ -73,6 +69,10 @@ const page = () => {
         socket.emit('adminLive');
         socket.on('adminComment', (data) => {
             setReceivedMessages(data);
+        });
+        socket.on('user-admin-id', (userId) => {
+
+            const call = peerRef.current.call(userId, videoRef.current.srcObject);
         });
     }, [socket]);
 

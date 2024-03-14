@@ -30,6 +30,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
         }, 25000);
         return () => clearTimeout(timeout);
     }, []);
+
     return (
         <html lang="en" suppressHydrationWarning>
             <head>

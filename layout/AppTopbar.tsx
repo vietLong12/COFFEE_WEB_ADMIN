@@ -50,7 +50,6 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
     }));
 
     const menu = useRef(null);
-    console.log('menu: ', menu);
     const items: MenuItem[] = [
         {
             label: 'Thông tin cá nhân',
