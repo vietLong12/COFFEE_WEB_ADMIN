@@ -27,6 +27,7 @@ import { ExcelService } from '../../../../common/service/ExcelService';
 import axios from 'axios';
 import download from 'downloadjs';
 import { ConfirmPopup, confirmPopup } from 'primereact/confirmpopup';
+import { BASE_URL } from '../../../../common/service/type';
 
 export default function BasicFilterDemo() {
     const [isEdit, setIsEdit] = useState<boolean>(false);
@@ -78,7 +79,7 @@ export default function BasicFilterDemo() {
     };
 
     const handleExportFile = async () => {
-        fetch('http://localhost:5500/export/accounts')
+        fetch(`${BASE_URL}/export/accounts`)
             .then((res) => res.blob())
             .then((blob) => download(blob, 'danh_sach_tai_khoan_' + new Date().toLocaleDateString())) // this line automatically starts a download operation
             .catch((err) => console.log(err));

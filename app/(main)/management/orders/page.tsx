@@ -13,6 +13,7 @@ import Swal from 'sweetalert2';
 import { Dropdown } from 'primereact/dropdown';
 import LoadingCustom from '../../../../common/components/Loading';
 import download from 'downloadjs';
+import { BASE_URL } from '../../../../common/service/type';
 
 const Orders = () => {
     const [render, setRender] = useState(false);
@@ -100,9 +101,9 @@ const Orders = () => {
                     icon="pi pi-file-excel"
                     severity="success"
                     rounded
-                    className='mr-5'
+                    className="mr-5"
                     onClick={() => {
-                        fetch('http://localhost:5500/export/orders')
+                        fetch(BASE_URL + '/export/orders')
                             .then((res) => res.blob())
                             .then((blob) => download(blob, 'danh_sach_don_hang_' + new Date().toLocaleDateString())) // this line automatically starts a download operation
                             .catch((err) => console.log(err));

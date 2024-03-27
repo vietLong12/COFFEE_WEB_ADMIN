@@ -141,18 +141,8 @@ const ModalEditAccount = ({ visible, setVisible, accountData, setAccountData, is
                         {!/\(?([0-9]{3})\)?([ .-]?)([0-9]{3})\2([0-9]{4})/.test(accountData.phone!) ? <p className="text-red-600">*Số điện thoại không hợp lệ</p> : ''}
                     </span>
 
-                    <span className="flex flex-column gap-2 mt-3">
-                        <label htmlFor="passwordPresent" className="text-black z-5">
-                            Mật khẩu hiện tại:
-                        </label>
-                        <InputText id="passwordPresent" name="passwordPresent" type="text" disabled value={accountData.password} />
-                    </span>
-
                     <Button type="submit" className="mt-3" severity="warning" onClick={handleEditAccount}>
                         Sửa thông tin
-                    </Button>
-                    <Button type="submit" className="ml-2 mt-3" severity="danger" onClick={() => setVisibleChangePassword(true)}>
-                        Đổi mật khẩu
                     </Button>
 
                     <Dialog header="Mời bạn nhập mật khẩu mới" visible={visibleChangePassword} style={{ width: '50vw' }} onHide={() => setVisibleChangePassword(false)}>
@@ -191,7 +181,7 @@ const ModalEditAccount = ({ visible, setVisible, accountData, setAccountData, is
                         <img
                             src={accountData.avatar ? accountData.avatar : 'https://st3.depositphotos.com/9998432/13335/v/450/depositphotos_133352156-stock-illustration-default-placeholder-profile-icon.jpg'}
                             alt="Image not found"
-                            className="w-20rem h-20rem border-circle mb-5"
+                            className="w-12rem h-12rem border-circle mb-5"
                         />
                         <FileUpload
                             mode="basic"

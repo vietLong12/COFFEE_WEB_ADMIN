@@ -12,4 +12,3 @@ export const PUT_PRODUCT = '/products/';
 
 export const GET_LIST_CATEGORY = '/products/category';
 export const GET_LIST_SIZE_BY_CATEGORY = '/products/size/';
-

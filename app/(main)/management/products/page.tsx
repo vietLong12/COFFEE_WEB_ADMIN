@@ -19,6 +19,7 @@ import download from 'downloadjs';
 import LoadingCustom from '../../../../common/components/Loading';
 import Swal from 'sweetalert2';
 import { ConfirmPopup, confirmPopup } from 'primereact/confirmpopup';
+import { BASE_URL } from '../../../../common/service/type';
 
 export default function Products() {
     const [isEdit, setIsEdit] = useState<boolean>(false);
@@ -65,7 +66,7 @@ export default function Products() {
                     <i className="pi pi-search" />
                     <InputText value={globalFilterValue} onChange={onGlobalFilterChange} placeholder="Keyword Search" />
                 </span>
-                <div className='mt-2 md:mt-0'>
+                <div className="mt-2 md:mt-0">
                     <Button
                         type="button"
                         icon="pi pi-user-plus"
@@ -83,7 +84,7 @@ export default function Products() {
                         severity="success"
                         rounded
                         onClick={() => {
-                            fetch('http://localhost:5500/export/products')
+                            fetch(BASE_URL + '/export/products')
                                 .then((res) => res.blob())
                                 .then((blob) => download(blob, 'danh_sach_san_pham_' + new Date().toLocaleDateString())) // this line automatically starts a download operation
                                 .catch((err) => console.log(err));

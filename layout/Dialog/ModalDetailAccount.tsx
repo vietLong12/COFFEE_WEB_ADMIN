@@ -57,19 +57,19 @@ const ModalDetailAccount = ({ account, visible, setVisible }: ModalDetailAccount
                 <div className="col-7">
                     <div className="flex flex-column gap-2 mb-3">
                         <label htmlFor="username">Tên tài khoản:</label>
-                        <InputText id="username" value={account?.username} aria-describedby="username-help" className='disabled-input' />
+                        <InputText id="username" value={account?.username} aria-describedby="username-help" className="disabled-input" />
                     </div>
                     <div className="flex flex-column gap-2 mb-3">
                         <label htmlFor="email">Email:</label>
-                        <InputText id="email" value={account?.email} aria-describedby="email-help" className='disabled-input' />
+                        <InputText id="email" value={account?.email} aria-describedby="email-help" className="disabled-input" />
                     </div>
                     <div className="flex flex-column gap-2 mb-3">
                         <label htmlFor="phone">Số điện thoại:</label>
-                        <InputText id="phone" value={account?.phone} aria-describedby="phone-help" className='disabled-input' />
+                        <InputText id="phone" value={account?.phone} aria-describedby="phone-help" className="disabled-input" />
                     </div>
                     <div className="flex flex-column gap-2 mb-3">
                         <label htmlFor="token">Ghi nhớ đăng nhập:</label>
-                        <InputText id="token" value={account?.token != '' ? 'Có' : 'Không'} aria-describedby="token-help" className='disabled-input' />
+                        <InputText id="token" value={account?.token != '' ? 'Có' : 'Không'} aria-describedby="token-help" className="disabled-input" />
                     </div>
                     <div className="flex flex-row gap-2 mb-3">
                         <div className="flex flex-column gap-2 w-6">
@@ -84,16 +84,12 @@ const ModalDetailAccount = ({ account, visible, setVisible }: ModalDetailAccount
                     <div className="flex flex-rơw gap-2 mb-3">
                         <div className="flex flex-column gap-2 w-6">
                             <label htmlFor="token">Ngày tạo tài khoản:</label>
-                            <InputText id="token" value={new Date(account?.createdAt).toLocaleDateString()} aria-describedby="token-help" className='disabled-input' />
+                            <InputText id="token" value={new Date(account?.createdAt).toLocaleDateString()} aria-describedby="token-help" className="disabled-input" />
                         </div>
                         <div className="flex flex-column gap-2 w-6">
                             <label htmlFor="token">Ngày sửa đổi gần nhất:</label>
-                            <InputText id="token" value={new Date(account?.updatedAt).toLocaleDateString()} aria-describedby="token-help" className='disabled-input' />
+                            <InputText id="token" value={new Date(account?.updatedAt).toLocaleDateString()} aria-describedby="token-help" className="disabled-input" />
                         </div>
-                    </div>
-                    <div className="flex flex-column gap-2 mb-3">
-                        <label htmlFor="token">Mật khẩu:</label>
-                        <InputText id="token" value={account?.password} aria-describedby="token-help" className='disabled-input' />
                     </div>
                 </div>
                 <div className="col-5 justify-content-center align-items-center flex">

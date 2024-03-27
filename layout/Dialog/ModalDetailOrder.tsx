@@ -29,7 +29,7 @@ const ModalDetailOrder = ({ orderId, visible, setVisible }: DetailOrderProps) =>
     };
 
     const quantityBodyTemplate = (data: any) => {
-        return <p>{convertVND(data.quantity)}</p>;
+        return <p>{convertVND(data.price)}</p>;
     }
 
     useEffect(() => {
