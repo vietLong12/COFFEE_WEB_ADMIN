@@ -1,6 +1,4 @@
-// next.config.js
-const withNetlify = require('next-on-netlify');
+/** @type {import('next').NextConfig} */
+const nextConfig = {}
 
-module.exports = withNetlify({
-  // các cấu hình khác nếu cần
-});
+module.exports = nextConfig
