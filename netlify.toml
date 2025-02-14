@@ -1,7 +1,10 @@
 [build]
   command = "yarn build && yarn export"
   publish = "out"
-  
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
 [[redirects]]
   from = "/service-worker.js"
   to = "/_next/static/service-worker.js"
