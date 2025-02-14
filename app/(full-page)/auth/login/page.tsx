@@ -8,7 +8,7 @@ import { Password } from 'primereact/password';
 import { LayoutContext } from '../../../../layout/context/layoutcontext';
 import { InputText } from 'primereact/inputtext';
 import { classNames } from 'primereact/utils';
-import bg from "/public/bg.jpg"
+import bg from '/public/bg.jpg';
 import Cookies from 'js-cookie';
 import { LoginService } from '../../../../common/service/LoginService';
 import Swal from 'sweetalert2';
@@ -18,6 +18,7 @@ const LoginPage = () => {
     const [username, setUsername] = useState('');
     const [checked, setChecked] = useState(false);
     const { layoutConfig } = useContext(LayoutContext);
+    //@ts-ignore
     const { setToken } = useContext(AuthContext);
     const router = useRouter();
     const containerClassName = classNames('flex align-items-center justify-content-center min-h-screen min-w-screen overflow-hidden', { 'p-input-filled': layoutConfig.inputStyle === 'filled' });
@@ -29,7 +30,7 @@ const LoginPage = () => {
         }
     }
     return (
-        <div className={containerClassName} style={{background: `url('${bg.src}') no-repeat`,backgroundSize:"cover"}}>
+        <div className={containerClassName} style={{ background: `url('${bg.src}') no-repeat`, backgroundSize: 'cover' }}>
             <div className="flex flex-column align-items-center justify-content-center">
                 <img src="https://bizweb.dktcdn.net/100/451/095/themes/894906/assets/logo.png?1701916321147" alt="Sakai logo" className="mb-5 w-10rem flex-shrink-0" />
                 <div

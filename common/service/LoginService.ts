@@ -3,7 +3,7 @@ import Swal from 'sweetalert2';
 import { BASE_URL } from './type';
 
 const request = axios.create({
-    baseURL: 'http://localhost:5000'
+    baseURL: 'https://server-management-production.up.railway.app'
 });
 
 interface LoginRequest {

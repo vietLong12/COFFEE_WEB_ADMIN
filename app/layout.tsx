@@ -22,7 +22,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
             const token = Cookies.get('tokenAdmin');
             if (token) {
                 let tokenJson = JSON.parse(token);
-                axios.post('http://localhost:5000/token', { refreshToken: tokenJson.refreshToken }).then((res: any) => {
+                axios.post('https://server-management-production.up.railway.app/token', { refreshToken: tokenJson.refreshToken }).then((res: any) => {
                     tokenJson = { ...tokenJson, refreshToken: res.data.refreshToken, accessToken: res.data.accessToken };
                     Cookies.set('tokenAdmin', JSON.stringify(tokenJson));
                 });

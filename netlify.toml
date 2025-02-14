@@ -1,0 +1,8 @@
+[build]
+  command = "yarn build && yarn export"
+  publish = "out"
+  
+[[redirects]]
+  from = "/service-worker.js"
+  to = "/_next/static/service-worker.js"
+  status = 200

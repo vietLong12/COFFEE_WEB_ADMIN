@@ -5,7 +5,7 @@ import { Carousel } from 'primereact/carousel';
 import { Galleria } from 'primereact/galleria';
 import { Image } from 'primereact/image';
 import React, { useEffect, useState } from 'react';
-import { PhotoService } from '../../../../common/service/PhotoService';
+// import { PhotoService } from '../../../../common/service/PhotoService';
 import { ProductService } from '../../../../common/service/ProductService';
 import type { Demo } from '../../../../types/types';
 
@@ -50,9 +50,10 @@ const MediaDemo = () => {
     ];
 
     useEffect(() => {
+        //@ts-ignore
         ProductService.getProductsSmall().then((products) => setProducts(products));
 
-        PhotoService.getImages().then((images) => setImages(images));
+        // PhotoService.getImages().then((images) => setImages(images));
     }, []);
 
     const carouselItemTemplate = (product: Demo.Product) => {

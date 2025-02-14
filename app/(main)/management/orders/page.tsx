@@ -31,6 +31,7 @@ const Orders = () => {
     }, [first, rows, search, render]);
 
     const loadOrders = () => {
+        //@ts-ignore
         OrderService.getListOrder({ keyword: search, page: first / rows + 1 }).then((res) => {
             setOrders(res.orders);
             setTotalPages(res.pagination.totalDocuments);

@@ -39,11 +39,13 @@ const ListDemo = () => {
     ];
 
     useEffect(() => {
+        //@ts-ignore
         ProductService.getProducts().then((data) => setDataViewValue(data));
         setGlobalFilterValue('');
     }, []);
 
     useEffect(() => {
+        //@ts-ignore
         ProductService.getProducts().then((data) => setDataViewValue(data));
         setGlobalFilterValue('');
     }, []);

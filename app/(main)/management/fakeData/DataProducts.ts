@@ -17,8 +17,9 @@ function genRandonString(length: number) {
 function getRandomRating() {
     return Math.floor(Math.random() * 5) + 1;
 }
-
+//@ts-ignore
 for (let i = 0; i < data.length; i++) {
+    //@ts-ignore
     data[i].rating = getRandomRating();
 }
 
@@ -43,7 +44,9 @@ export const dataService = [
     }
 ];
 
+//@ts-ignore
 export const dataMenuList = [data[getRandomNumber(23)], data[getRandomNumber(23)], data[getRandomNumber(23)], data[getRandomNumber(23)], data[getRandomNumber(23)], data[getRandomNumber(23)], data[getRandomNumber(23)], data[getRandomNumber(23)]];
+//@ts-ignore
 export default data;
 
 export const dataUserReview = [

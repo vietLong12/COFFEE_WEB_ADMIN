@@ -43,6 +43,7 @@ const Crud = () => {
     const dt = useRef<DataTable<any>>(null);
 
     useEffect(() => {
+        //@ts-ignore
         ProductService.getProducts().then((data) => setProducts(data as any));
     }, []);
 

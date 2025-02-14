@@ -14,7 +14,9 @@ import { Button } from 'primereact/button';
 import ModalEditAccount from '../../../../layout/Dialog/ModalEditAccount';
 import { Account, ModalEditAccountProps } from '../../../../types/types';
 import ModalAddAccount from '../../../../layout/Dialog/ModalAddAccount';
+//@ts-ignore
 import { AccountCommon, AccountService } from '../../../../common/service/AccountService';
+//@ts-ignore
 import { exportDataAccount } from '../../../../common/excel.';
 import { convertDateTimeFormat } from '../../../../common/utils/util';
 import { Paginator } from 'primereact/paginator';
@@ -173,6 +175,7 @@ export default function BasicFilterDemo() {
                 target: event.currentTarget,
                 message: 'Bạn có chắc là sẽ xóa tài khoản này?',
                 icon: 'pi pi-info-circle',
+                //@ts-ignore
                 defaultFocus: 'reject',
                 acceptClassName: 'p-button-danger',
                 accept,

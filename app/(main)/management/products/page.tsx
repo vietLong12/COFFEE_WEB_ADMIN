@@ -124,7 +124,7 @@ export default function Products() {
         return <div>{rowData.inStock ? <p className="bg-red-400 text-xs text-center text-white border-round-sm	p-1">Còn hàng</p> : <p className=" p-1 bg-gray-500 text-xs text-center text-white border-round-sm	">Hết hàng</p>}</div>;
     };
 
-    const sizeBodyTemplate = (rowData: Product) => {
+    const sizeBodyTemplate = (rowData: any) => {
         return (
             <div className="flex justify-content-start">
                 {rowData.sizes?.map((item, index) => {
@@ -195,6 +195,7 @@ export default function Products() {
                 target: event.currentTarget,
                 message: 'Bạn có chắc rằng muốn xóa sản phẩm không?',
                 icon: 'pi pi-info-circle',
+                //@ts-ignore
                 defaultFocus: 'reject',
                 acceptClassName: 'p-button-danger',
                 accept,

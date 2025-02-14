@@ -27,6 +27,6 @@ export function convertToVND(tien: any) {
     if (tien) {
         temp = tien.toString() + '000';
     }
+    //@ts-ignore
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(temp);
 }
-

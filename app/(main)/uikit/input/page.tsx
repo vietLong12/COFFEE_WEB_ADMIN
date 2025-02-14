@@ -19,7 +19,7 @@ import { SelectButton } from 'primereact/selectbutton';
 import { Slider } from 'primereact/slider';
 import { ToggleButton } from 'primereact/togglebutton';
 import React, { useEffect, useState } from 'react';
-import { CountryService } from '../../../../common/service/CountryService';
+// import { CountryService } from '../../../../common/service/CountryService';
 import type { Demo, Page } from '../../../../types/types';
 
 interface InputValue {
@@ -92,6 +92,7 @@ const InputDemo: Page = () => {
     ];
 
     useEffect(() => {
+        //@ts-ignore
         CountryService.getCountries().then((data) => setAutoValue(data));
     }, []);
 

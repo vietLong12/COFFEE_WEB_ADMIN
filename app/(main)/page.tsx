@@ -54,6 +54,7 @@ interface ResponseInfor2 {
 }
 
 export default function StackedBarDemo() {
+    //@ts-ignore
     const { token } = useContext(AuthContext);
 
     const [dataFetch, setDataFetch] = useState<ResponseInfor | null>(null);

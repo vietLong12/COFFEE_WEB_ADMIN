@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Tree, TreeCheckboxSelectionKeys, TreeMultipleSelectionKeys } from 'primereact/tree';
 import { TreeTable, TreeTableSelectionKeysType } from 'primereact/treetable';
 import { Column } from 'primereact/column';
-import { NodeService } from '../../../../common/service/NodeService';
+// import { NodeService } from '../../../../common/service/NodeService';
 import { TreeNode } from 'primereact/treenode';
 
 const TreeDemo = () => {
@@ -12,10 +12,10 @@ const TreeDemo = () => {
     const [selectedFileKeys, setSelectedFileKeys] = useState<string | TreeMultipleSelectionKeys | TreeCheckboxSelectionKeys | null>(null);
     const [selectedFileKeys2, setSelectedFileKeys2] = useState<TreeTableSelectionKeysType | null>(null);
 
-    useEffect(() => {
-        NodeService.getFiles().then((files) => setFiles(files));
-        NodeService.getFilesystem().then((files) => setFiles2(files));
-    }, []);
+    // useEffect(() => {
+    //     NodeService.getFiles().then((files) => setFiles(files));
+    //     NodeService.getFilesystem().then((files) => setFiles2(files));
+    // }, []);
 
     return (
         <div className="grid">

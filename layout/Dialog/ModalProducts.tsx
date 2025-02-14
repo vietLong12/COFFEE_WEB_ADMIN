@@ -1,5 +1,5 @@
 import { Dialog } from 'primereact/dialog';
-import React, { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { ReactNode, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Category, ModalProductsProps, Product } from '../../types/types';
 import { InputText } from 'primereact/inputtext';
 import * as Yup from 'yup';
@@ -30,11 +30,11 @@ export interface PostProductRequest {
     desc?: string;
 }
 
-const ModalProducts = ({ visible, setVisible, isEdit, productData, setProductData, render, setRender }: ModalProductsProps) => {
+const ModalProducts = ({ visible, setVisible, isEdit, productData, setProductData, render, setRender }: any) => {
     const toast = useRef<Toast>(null);
     const { loading, setLoading } = useContext(LayoutContext);
     const linkDefaultAvatar = 'https://www.testhouse.net/wp-content/uploads/2021/11/default-avatar.jpg';
-    const [avatarLink, setAvatarLink] = useState('');
+    const [avatarLink, setAvatarLink] = useState<any>('');
     const [listSizeReq, setListSizeReq] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState<Partial<Category>>({});
     const [selectedSize, setSelectedSize] = useState<any>();
@@ -211,7 +211,7 @@ const ModalProducts = ({ visible, setVisible, isEdit, productData, setProductDat
                                         <div className="flex flex-column gap-2">
                                             <label htmlFor="productName">Tên sản phẩm:</label>
                                             <Field component={CustomInputComponent} name="productName" className="w-full" />
-                                            {errors.productName && touched.productName ? <div className="text-red-600">{errors.productName}</div> : null}
+                                            {errors.productName && touched.productName ? <div className="text-red-600">{(errors.productName as ReactNode) ? <span>errors.productName</span> : null}</div> : null}
                                         </div>
                                         {!isEdit ? (
                                             <div className="flex flex-column gap-2 mt-3">
@@ -255,7 +255,7 @@ const ModalProducts = ({ visible, setVisible, isEdit, productData, setProductDat
                                         <div className="flex flex-column gap-2 mt-3">
                                             <label htmlFor="desc">Mô tả sản phẩm:</label>
                                             <Field component={CustomInputTextAreaComponent} name="desc" className={`w-full ${isEdit ? 'h-13rem' : ''}`} />
-                                            {errors.desc && touched.desc ? <div className="text-red-600">{errors.desc}</div> : null}
+                                            {errors.desc && touched.desc ? <div className="text-red-600">{(errors.desc as ReactNode) ? <>{errors.desc}</> : null}</div> : null}
                                         </div>
                                     </div>
                                     <div className="col-6">

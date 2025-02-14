@@ -9,7 +9,7 @@ import { Calendar } from 'primereact/calendar';
 import { Chips } from 'primereact/chips';
 import { Dropdown } from 'primereact/dropdown';
 import { MultiSelect } from 'primereact/multiselect';
-import { CountryService } from '../../../../common/service/CountryService';
+// import { CountryService } from '../../../../common/service/CountryService';
 import type { Demo } from '../../../../types/types';
 
 const FloatLabelDemo = () => {
@@ -37,9 +37,9 @@ const FloatLabelDemo = () => {
     ];
 
     useEffect(() => {
-        CountryService.getCountries().then((countries) => {
-            setCountries(countries);
-        });
+        // CountryService.getCountries().then((countries) => {
+        //     setCountries(countries);
+        // });
     }, []);
 
     const searchCountry = (event: AutoCompleteCompleteEvent) => {

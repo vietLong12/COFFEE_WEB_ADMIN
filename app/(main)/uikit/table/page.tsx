@@ -1,5 +1,5 @@
 'use client';
-import { CustomerService } from '../../../../common/service/CustomerService';
+// import { CustomerService } from '../../../../common/service/CustomerService';
 import { ProductService } from '../../../../common/service/ProductService';
 import { FilterMatchMode, FilterOperator } from 'primereact/api';
 import { Button } from 'primereact/button';
@@ -75,16 +75,16 @@ const TableDemo = () => {
     useEffect(() => {
         setLoading2(true);
 
-        CustomerService.getCustomersLarge().then((data) => {
-            setCustomers1(getCustomers(data));
-            setLoading1(false);
-        });
-        CustomerService.getCustomersLarge().then((data) => {
-            setCustomers2(getCustomers(data));
-            setLoading2(false);
-        });
-        CustomerService.getCustomersMedium().then((data) => setCustomers3(data));
-        ProductService.getProductsWithOrdersSmall().then((data) => setProducts(data));
+        // CustomerService.getCustomersLarge().then((data) => {
+        //     setCustomers1(getCustomers(data));
+        //     setLoading1(false);
+        // });
+        // CustomerService.getCustomersLarge().then((data) => {
+        //     setCustomers2(getCustomers(data));
+        //     setLoading2(false);
+        // });
+        // CustomerService.getCustomersMedium().then((data) => setCustomers3(data));
+        // ProductService.getProductsWithOrdersSmall().then((data) => setProducts(data));
 
         initFilters1();
     }, []);

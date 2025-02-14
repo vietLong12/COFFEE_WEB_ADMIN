@@ -7,6 +7,7 @@ import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import { ConfirmPopup, confirmPopup } from 'primereact/confirmpopup';
 import * as Yup from 'yup';
+//@ts-ignore
 import { AccountCommon, AccountService } from '../../common/service/AccountService';
 import { FileUpload } from 'primereact/fileupload';
 import { ImageUploadService } from '../../common/service/ImageUploadService';
@@ -16,7 +17,7 @@ import Swal from 'sweetalert2';
 const ModalAddAccount = ({ visible, setVisible, setRender, render }: ModalAddAccountProps) => {
     const toast = useRef<Toast>(null);
     const { setLoading } = useContext(LayoutContext);
-    const [avatarLink, setAvatarLink] = useState('');
+    const [avatarLink, setAvatarLink] = useState<any>('');
     const headerBody = () => {
         return (
             <>

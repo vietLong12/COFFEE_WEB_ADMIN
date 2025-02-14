@@ -36,7 +36,6 @@ const ModalDetailOrder = ({ orderId, visible, setVisible }: DetailOrderProps) =>
         const fetchData = async () => {
             const res = await OrderService.getOrderById(orderId);
             let items = [...res.order.items];
-            ('items: ', items);
             items = items.map(async (item) => {
                 const res = await ProductService.getProductById(item.productId);
                 const sizes = [...res.product.sizes];

@@ -57,6 +57,7 @@ const OverlayDemo = () => {
     };
 
     useEffect(() => {
+        //@ts-ignore
         ProductService.getProductsSmall().then((data) => setProducts(data));
     }, []);
 

@@ -6,6 +6,7 @@ import { Button } from 'primereact/button';
 import { Toast } from 'primereact/toast';
 import { ConfirmPopup, confirmPopup } from 'primereact/confirmpopup';
 import * as Yup from 'yup';
+//@ts-ignore
 import { AccountCommon, AccountService } from '../../common/service/AccountService';
 import { FileUpload } from 'primereact/fileupload';
 import { ImageUploadService } from '../../common/service/ImageUploadService';

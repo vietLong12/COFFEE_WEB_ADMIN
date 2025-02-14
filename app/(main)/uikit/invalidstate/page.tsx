@@ -11,7 +11,7 @@ import { Chips } from 'primereact/chips';
 import { Dropdown } from 'primereact/dropdown';
 import { MultiSelect } from 'primereact/multiselect';
 import { Password } from 'primereact/password';
-import { CountryService } from '../../../../common/service/CountryService';
+// import { CountryService } from '../../../../common/service/CountryService';
 import type { Demo } from '../../../../types/types';
 
 const InvalidStateDemo = () => {
@@ -37,9 +37,9 @@ const InvalidStateDemo = () => {
     ];
 
     useEffect(() => {
-        CountryService.getCountries().then((countries) => {
-            setCountries(countries);
-        });
+        // CountryService.getCountries().then((countries) => {
+        //     setCountries(countries);
+        // });
     }, []);
 
     const searchCountry = (event: AutoCompleteCompleteEvent) => {

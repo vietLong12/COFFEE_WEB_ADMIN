@@ -1,4 +1,4 @@
-export const BASE_URL = 'http://localhost:5500';
+export const BASE_URL = 'https://coffeewebapi-production.up.railway.app';
 
 export const GET_ACCOUNT = '/accounts';
 export const DELETE_ACCOUNT = '/accounts/';
